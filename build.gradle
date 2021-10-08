@@ -1,19 +1,28 @@
 plugins {
-    id 'java'
+    id 'java-library'
 }
-
-group 'org.example'
-version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
 }
 
-dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-}
+def versions = [
+        ScalaBinary: "2.13"
+]
 
-test {
-    useJUnitPlatform()
+dependencies {
+
+    /* assignment #01 */
+    implementation 'org.apache.pdfbox:pdfbox:2.0.22'
+
+    /* module 3.1 - akka actors */
+    implementation platform("com.typesafe.akka:akka-bom_${versions.ScalaBinary}:2.6.14")
+    implementation "com.typesafe.akka:akka-actor-typed_${versions.ScalaBinary}"
+
+    /* module 4.1 - akka actors */
+    implementation "com.typesafe.akka:akka-remote_${versions.ScalaBinary}"
+    implementation 'com.typesafe.akka:akka-actor_2.13:2.6.16'
+
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.12'
 }
