@@ -31,7 +31,7 @@ public class FilesFinderActor  extends AbstractBehavior<Message> {
     }
 
     private Behavior<Message> onFindFilesReqMessage(FindFilesReqMessage message) {
-        ArrayList<String> filesName = FileReader.getFilesInFolder(message.path, "pdf");
+        List<String> filesName = FileReader.getFilesInFolder(message.path, "pdf");
         List<File> files = filesName.stream().map(File::new).toList();
         message.caller.tell(new FindFilesResMessage(files));
         return this;

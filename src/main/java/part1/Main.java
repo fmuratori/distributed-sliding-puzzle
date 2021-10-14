@@ -3,7 +3,8 @@ package part1;
 import akka.actor.typed.ActorSystem;
 import part1.actor.*;
 import part1.message.Message;
-import part1.message.StartTaskMessage;
+import part1.ui.GraphicUI;
+import part1.ui.View;
 
 public class Main {
     private static final String folder = "C:\\Users\\Fabio\\Desktop\\pcd_workspace\\pcd-assignment-03\\data";
@@ -11,9 +12,10 @@ public class Main {
 
     public static void main(String[] args) {
 
-        final ActorSystem<Message> system =
-                ActorSystem.create(TaskActor.create(), "task");
+        final ActorSystem<Message> firstActor =
+                ActorSystem.create(UiActor.create(), "task");
 
-        system.tell(new StartTaskMessage(folder, stopWordsFile));
+        View v = new GraphicUI(firstActor);
+
     }
 }

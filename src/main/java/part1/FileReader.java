@@ -29,7 +29,7 @@ public class FileReader {
 
             document.close();
 
-        } catch(IOException ex) {}
+        } catch(IOException ignored) {}
         return text;
     }
 
@@ -42,7 +42,7 @@ public class FileReader {
 
         File folder = new File(folderPath);
         File file;
-        ArrayList<String> pdfList = new ArrayList<String>();
+        ArrayList<String> pdfList = new ArrayList<>();
         String[] fileNameList = folder.list();
 
         if(fileNameList != null) {

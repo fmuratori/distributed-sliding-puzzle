@@ -14,15 +14,16 @@ import java.util.*;
 
 public class TaskActor extends AbstractBehavior<Message> {
 
-    private static final int WORKERS_POOL_SIZE = 5;
+    private ActorRef<Message> uiActor;
+    private final ActorRef<Message> stopWordsLoader;
+    private final ActorRef<Message> filesFinder;
+    private List<ActorRef<Message>> counterActors;
 
-    private final ActorRef stopWordsLoader;
-    private final ActorRef filesFinder;
-    private final List<ActorRef> wordCounters;
-    private List<String> stopWords = new ArrayList<>();
-    private Map<String, Integer> counts = new HashMap<>();
+    private Optional<List<String>> stopWords = Optional.empty();
+    private Optional<List<File>> loadedFiles = Optional.empty();
 
-    private List<File> unprocessedFiles = new ArrayList<>();
+    private int processedFilesCount;
+    private Map<String, Integer> counts;
 
     public TaskActor(ActorContext<Message> context) {
         super(context);
@@ -32,11 +33,6 @@ public class TaskActor extends AbstractBehavior<Message> {
 
         filesFinder =
                 getContext().spawnAnonymous(FilesFinderActor.create());
-
-        wordCounters = new ArrayList<>();
-        for (int i = 0; i < WORKERS_POOL_SIZE; i++) {
-            wordCounters.add(getContext().spawnAnonymous(FileWordsCounterActor.create()));
-        }
     }
 
     public static Behavior<Message> create() {
@@ -46,71 +42,75 @@ public class TaskActor extends AbstractBehavior<Message> {
     @Override
     public Receive<Message> createReceive() {
         return newReceiveBuilder()
-                .onMessage(StartTaskMessage.class, this::onStartTaskMessage)
+                .onMessage(StartTaskReqMessage.class, this::onStartTaskMessage)
                 .onMessage(LoadStopWordsResMessage.class, this::onLoadStopWordsResMessage)
                 .onMessage(FindFilesResMessage.class, this::onFindFilesResMessage)
                 .onMessage(ProcessFileResMessage.class, this::onProcessFileResMessage)
                 .build();
     }
 
-    private Behavior<Message> onFindFilesResMessage(FindFilesResMessage message) {
-        this.unprocessedFiles = message.files;
-        this.checkComputationStart();
-        return this;
-    }
-
-    private Behavior<Message> onLoadStopWordsResMessage(LoadStopWordsResMessage message) {
-        this.stopWords = message.stopWords;
-        this.checkComputationStart();
-        return this;
-    }
-
-    private Behavior<Message> onStartTaskMessage(StartTaskMessage message) {
+    private Behavior<Message> onStartTaskMessage(StartTaskReqMessage message) {
         // send messages LoadStopWordsReqMessage
         stopWordsLoader.tell(new LoadStopWordsReqMessage(message.stopWordsFile, getContext().getSelf()));
 
         // send messages FindFilesReqMessage
         filesFinder.tell(new FindFilesReqMessage(message.folder, getContext().getSelf()));
 
+        this.uiActor = message.caller;
+
+        return this;
+    }
+
+    private Behavior<Message> onLoadStopWordsResMessage(LoadStopWordsResMessage message) {
+        this.stopWords = Optional.of(message.stopWords);
+        this.checkComputationStart();
+        return this;
+    }
+
+    private Behavior<Message> onFindFilesResMessage(FindFilesResMessage message) {
+        this.loadedFiles = Optional.of(message.files);
+        this.checkComputationStart();
         return this;
     }
 
     private Behavior<Message> onProcessFileResMessage(ProcessFileResMessage message) {
-        this.unprocessedFiles.remove(message.file);
 
-        WordsCounter.sumCounters(this.counts, message.counts);
+        this.counts = WordsCounter.sumCounters(this.counts, message.counts);
 
         System.out.println(this.counts);
 
-        if (this.unprocessedFiles.size() > 0) {
-            message.caller.tell(new ProcessFileReqMessage(
-                    this.getNextFile(), stopWords, getContext().getSelf()));
+        this.processedFilesCount ++;
+
+        uiActor.tell(new TaskUpdateMessage(this.counts));
+
+        if (this.loadedFiles.isPresent() && this.processedFilesCount == this.loadedFiles.get().size()) {
+            System.out.println("COMPLETED");
+
+
+            // delete single actors (not just this actore reference to them)
+            for (ActorRef<Message> counterActor : counterActors)
+                getContext().stop(counterActor);
+
+            // termiante the actor system entirely
+//            getContext().getSystem().terminate();
         }
+
         return this;
     }
 
     private void checkComputationStart() {
-        if (!this.unprocessedFiles.isEmpty() && !this.stopWords.isEmpty()) {
+        if (this.loadedFiles.isPresent() && this.stopWords.isPresent()) {
 
-            System.out.println(this.unprocessedFiles);
-            System.out.println(this.stopWords);
+            this.counts = new HashMap<>();
+            this.processedFilesCount = 0;
 
-            for (ActorRef wordCounter : wordCounters) {
-                System.out.println("A");
-                System.out.println(this.getNextFile());
-                System.out.println("B");
-
-//                File f  = this.getNextFile();
-//
-//
-//                wordCounter.tell(new ProcessFileReqMessage(
-//                        this.getNextFile(), stopWords, getContext().getSelf()));
+            counterActors = new ArrayList<>();
+            for (File f : this.loadedFiles.get()) {
+                ActorRef<Message> counterActor = getContext().spawnAnonymous(FileWordsCounterActor.create());
+                counterActor.tell(new ProcessFileReqMessage( f, stopWords.get(), getContext().getSelf()));
+                counterActors.add(counterActor);
             }
         }
-    }
-
-    private File getNextFile() {
-        return this.unprocessedFiles.remove(0);
     }
 }
 

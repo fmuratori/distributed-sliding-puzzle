@@ -18,7 +18,7 @@ public class WordsCounter {
     }
 
     public static <K, V extends Comparable<? super V>> Map<K, V> sortMapByValue(Map<K, V> map) {
-        List<Map.Entry<K, V>> list = new ArrayList<>(map.entrySet());
+        List<Map.Entry<K, V>> list = new ArrayList<Map.Entry<K, V>>(map.entrySet());
         list.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
 
         Map<K, V> result = new LinkedHashMap<>();

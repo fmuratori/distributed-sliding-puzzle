@@ -10,7 +10,6 @@ import part1.message.LoadStopWordsReqMessage;
 import part1.message.LoadStopWordsResMessage;
 import part1.message.Message;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class StopWordsLoaderActor extends AbstractBehavior<Message> {
