@@ -6,26 +6,18 @@ import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class FileReader {
 
-    /**
-     *
-     * @param path contains the path of the file
-     * @return list of words contained in the choosen file
-     */
-    public ArrayList<String> getWordsFromPdf(String path){
-
-        //le parole estratte dai pdf vengono messe in this.wordList
-        ArrayList<String> wordList = new ArrayList<String>();
-
+    public static String getPdfText(File file){
+        String text = "";
         try {
-
-            //legge il file dal file system, lo spezzetta in stringhe
-            //e manda la lista ottenuta al monitor per la conta
-            PDDocument document = PDDocument.load(new File(path));
+            PDDocument document = PDDocument.load(file);
             AccessPermission ap = document.getCurrentAccessPermission();
 
             if(!ap.canExtractContent()) {
@@ -33,21 +25,12 @@ public class FileReader {
             }
 
             PDFTextStripper stripper = new PDFTextStripper();
-
-            // This example uses sorting, but in some cases it is more useful to switch it off,
-            // e.g. in some files with columns where the PDF content stream respects the
-            // column order.
-            stripper.setSortByPosition(true);
-
-            String text = stripper.getText(document);
-            wordList.addAll(Arrays.asList(text.trim().replaceAll("[^a-zA-Zςΰωθιμ ]", " ").split("\\s+")));
+            text = stripper.getText(document);
 
             document.close();
 
         } catch(IOException ex) {}
-
-        return wordList;
-
+        return text;
     }
 
     /**
@@ -55,7 +38,7 @@ public class FileReader {
      * @param extension contains the extension of the desired files
      * @return path list of files with a choosen extension in the selected folder
      */
-    public ArrayList<String> getFilesInFolder(String folderPath, String extension){
+    public static ArrayList<String> getFilesInFolder(String folderPath, String extension){
 
         File folder = new File(folderPath);
         File file;
@@ -75,6 +58,15 @@ public class FileReader {
 
         return pdfList;
 
+    }
+
+    public static List<String> getStopWords(String file) {
+        try {
+            return Arrays.asList(new String(Files.readAllBytes(Paths.get(file))).split("\n"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
 }
