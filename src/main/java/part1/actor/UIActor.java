@@ -40,7 +40,7 @@ public class UIActor extends AbstractBehavior<Message> {
     }
 
     private Behavior<Message> onUIInitializedMessage(UIInitializedMessage message) {
-        this.textArea = message.textArea;
+        this.textArea = message.getTextArea();
         return this;
     }
 

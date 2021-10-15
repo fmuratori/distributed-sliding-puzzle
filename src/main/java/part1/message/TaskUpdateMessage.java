@@ -1,8 +1,6 @@
 package part1.message;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class TaskUpdateMessage implements Message {
 
