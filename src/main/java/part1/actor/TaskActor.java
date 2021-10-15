@@ -58,9 +58,9 @@ public class TaskActor extends AbstractBehavior<Message> {
     }
 
     private Behavior<Message> onProcessFileResMessage(ProcessFileResMessage message) {
-        this.totalWordsCount += message.wordList.size();
+        this.totalWordsCount += message.getWordList().size();
 
-        addWords(this.wordCountMap, message.wordList);
+        addWords(this.wordCountMap, message.getWordList());
         List<String[]> result = getOrderedResult(this.wordCountMap, this.wordNumber);
 
         this.uiActor.tell(new TaskUpdateMessage(result, totalWordsCount, filePathList.get().size()));
