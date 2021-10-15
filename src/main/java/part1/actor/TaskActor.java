@@ -58,8 +58,6 @@ public class TaskActor extends AbstractBehavior<Message> {
     }
 
     private Behavior<Message> onProcessFileResMessage(ProcessFileResMessage message) {
-        this.totalWordsCount += message.getWordList().size();
-
         addWords(this.wordCountMap, message.getWordList());
         List<String[]> result = getOrderedResult(this.wordCountMap, this.wordNumber);
 
@@ -73,8 +71,14 @@ public class TaskActor extends AbstractBehavior<Message> {
      */
     private void addWords(LinkedHashMap<String,Integer> wordMap, List<String> wordList){
         wordList.forEach(word -> {
-            if(wordMap.containsKey(word)) wordMap.replace(word, wordMap.get(word)+1);
-            else wordMap.put(word,1);
+            //la stop-word la discrimina LA, La, lA e la, ma La discrimina solo La e LA
+            if (!stopWords.get().contains(word.toLowerCase())){
+                totalWordsCount += 1;
+                if(wordMap.containsKey(word))
+                    wordMap.replace(word, wordMap.get(word)+1);
+                else
+                    wordMap.put(word,1);
+            }
         });
     }
 

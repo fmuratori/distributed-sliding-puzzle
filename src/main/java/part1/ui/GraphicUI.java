@@ -1,7 +1,6 @@
 package part1.ui;
 
 import akka.actor.typed.ActorRef;
-import ass1.controller.Utils;
 import part1.message.Message;
 import part1.message.StartTaskReqMessage;
 import part1.message.UIInitializedMessage;
@@ -11,7 +10,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serial;
-import java.util.Map;
 
 public class GraphicUI extends JFrame implements ActionListener {
 
