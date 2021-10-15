@@ -39,9 +39,9 @@ public class WordsCounter {
         return new ArrayList<>(Arrays.asList(words));
     }
 
-    public static List<String> filterStopWords(List<String> words, List<String> stopWords) {
-        return words.stream().filter(stopWords::contains).toList();
-    }
+//    public static List<String> filterStopWords(List<String> words, List<String> stopWords) {
+//        return words.stream().filter(stopWords::contains).toList();
+//    }
 
     public static void filterStopWords(Map<String, Integer> wordsCount, List<String> stopWords) {
         stopWords.forEach(wordsCount::remove);

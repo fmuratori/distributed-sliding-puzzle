@@ -6,33 +6,28 @@ import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
-import part1.WordsCounter;
+import part1.FileReader;
 import part1.message.*;
 
-import java.io.File;
 import java.util.*;
 
+/**
+ * istanzia attori worker, ognuno dei quali analizza un pdf diverso
+ * i risultati vengono convogliati nel TaskActor
+ */
 public class TaskActor extends AbstractBehavior<Message> {
 
     private ActorRef<Message> uiActor;
-    private final ActorRef<Message> stopWordsLoader;
-    private final ActorRef<Message> filesFinder;
-    private List<ActorRef<Message>> counterActors;
+
+    private LinkedHashMap<String, Integer> wordCountMap = new LinkedHashMap<>();
+    private Integer totalWordsCount = 0;
 
     private Optional<List<String>> stopWords = Optional.empty();
-    private Optional<List<File>> loadedFiles = Optional.empty();
-
-    private int processedFilesCount;
-    private Map<String, Integer> counts;
+    private Optional<List<String>> filePathList = Optional.empty();
+    private Integer wordNumber;
 
     public TaskActor(ActorContext<Message> context) {
         super(context);
-
-        stopWordsLoader =
-                getContext().spawnAnonymous(StopWordsLoaderActor.create());
-
-        filesFinder =
-                getContext().spawnAnonymous(FilesFinderActor.create());
     }
 
     public static Behavior<Message> create() {
@@ -43,74 +38,63 @@ public class TaskActor extends AbstractBehavior<Message> {
     public Receive<Message> createReceive() {
         return newReceiveBuilder()
                 .onMessage(StartTaskReqMessage.class, this::onStartTaskMessage)
-                .onMessage(LoadStopWordsResMessage.class, this::onLoadStopWordsResMessage)
-                .onMessage(FindFilesResMessage.class, this::onFindFilesResMessage)
                 .onMessage(ProcessFileResMessage.class, this::onProcessFileResMessage)
                 .build();
     }
 
     private Behavior<Message> onStartTaskMessage(StartTaskReqMessage message) {
-        // send messages LoadStopWordsReqMessage
-        stopWordsLoader.tell(new LoadStopWordsReqMessage(message.stopWordsFile, getContext().getSelf()));
+        //carico lista di parole bandite e path di file da analizzare attraverso il fileReader
+        this.filePathList = Optional.of(FileReader.getFilesInFolder(message.getFolder(), "pdf"));
+        this.stopWords = Optional.of(FileReader.getWordsFromPdf(message.getBannedWordsFile()));
+        this.wordNumber = message.getWordNumber();
+        this.uiActor = message.getCaller();
 
-        // send messages FindFilesReqMessage
-        filesFinder.tell(new FindFilesReqMessage(message.folder, getContext().getSelf()));
+        filePathList.get().forEach(filePath -> {
+            ActorRef<Message> worker = getContext().spawnAnonymous(FileWordsCounterActor.create());
+            worker.tell(new ProcessFileReqMessage(filePath, stopWords.get(), getContext().getSelf()));
+        });
 
-        this.uiActor = message.caller;
-
-        return this;
-    }
-
-    private Behavior<Message> onLoadStopWordsResMessage(LoadStopWordsResMessage message) {
-        this.stopWords = Optional.of(message.stopWords);
-        this.checkComputationStart();
-        return this;
-    }
-
-    private Behavior<Message> onFindFilesResMessage(FindFilesResMessage message) {
-        this.loadedFiles = Optional.of(message.files);
-        this.checkComputationStart();
         return this;
     }
 
     private Behavior<Message> onProcessFileResMessage(ProcessFileResMessage message) {
+        this.totalWordsCount += message.wordList.size();
 
-        this.counts = WordsCounter.sumCounters(this.counts, message.counts);
+        addWords(this.wordCountMap, message.wordList);
+        List<String[]> result = getOrderedResult(this.wordCountMap, this.wordNumber);
 
-        System.out.println(this.counts);
-
-        this.processedFilesCount ++;
-
-        uiActor.tell(new TaskUpdateMessage(this.counts));
-
-        if (this.loadedFiles.isPresent() && this.processedFilesCount == this.loadedFiles.get().size()) {
-            System.out.println("COMPLETED");
-
-
-            // delete single actors (not just this actore reference to them)
-            for (ActorRef<Message> counterActor : counterActors)
-                getContext().stop(counterActor);
-
-            // termiante the actor system entirely
-//            getContext().getSystem().terminate();
-        }
-
+        this.uiActor.tell(new TaskUpdateMessage(result, totalWordsCount, filePathList.get().size()));
         return this;
     }
 
-    private void checkComputationStart() {
-        if (this.loadedFiles.isPresent() && this.stopWords.isPresent()) {
-
-            this.counts = new HashMap<>();
-            this.processedFilesCount = 0;
-
-            counterActors = new ArrayList<>();
-            for (File f : this.loadedFiles.get()) {
-                ActorRef<Message> counterActor = getContext().spawnAnonymous(FileWordsCounterActor.create());
-                counterActor.tell(new ProcessFileReqMessage( f, stopWords.get(), getContext().getSelf()));
-                counterActors.add(counterActor);
-            }
-        }
+    /**
+     * @param wordMap hash map da aggiornare
+     * @param wordList lista di parole da inserire nella hash map
+     */
+    private void addWords(LinkedHashMap<String,Integer> wordMap, List<String> wordList){
+        wordList.forEach(word -> {
+            if(wordMap.containsKey(word)) wordMap.replace(word, wordMap.get(word)+1);
+            else wordMap.put(word,1);
+        });
     }
+
+    /**
+     * @param wordMap mappa parole-numeroOccorrenze da ordinare e tagliare
+     * @param wordNumber numero di parole da prelevare
+     * @return restituisce la lista delle parole più frequenti
+     */
+    private List<String[]> getOrderedResult(LinkedHashMap<String,Integer> wordMap, Integer wordNumber){
+        LinkedHashMap<String,Integer> supportMap = wordMap;
+        List<String[]> result = new ArrayList();
+
+        supportMap.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .limit(wordNumber).forEach(entry -> {
+                    String[] newRow = {entry.getKey(), entry.getValue().toString()};
+                    result.add(newRow);
+                });
+
+        return result;
+    }
+
 }
 

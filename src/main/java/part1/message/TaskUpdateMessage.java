@@ -1,12 +1,32 @@
 package part1.message;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class TaskUpdateMessage implements Message {
 
-    public Map<String, Integer> counts;
+    //lista di doppie parola-numeroOccorrenze ordinate per numero di occorrenze
+    private List<String[]> wordList;
+    private Integer totalWordsCount;
+    private Integer totalFileNumber;
 
-    public TaskUpdateMessage(Map<String, Integer> counts) {
-        this.counts = counts;
+    public TaskUpdateMessage(List<String[]> wordList, Integer totalWordsCount, Integer totalFileNumber) {
+        this.wordList = wordList;
+        this.totalWordsCount = totalWordsCount;
+        this.totalFileNumber = totalFileNumber;
     }
+
+    public List<String[]> getWordList() {
+        return wordList;
+    }
+
+    public Integer getTotalWordsCount() {
+        return totalWordsCount;
+    }
+
+    public Integer getTotalFileNumber() {
+        return totalFileNumber;
+    }
+
 }

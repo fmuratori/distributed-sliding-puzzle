@@ -1,21 +1,26 @@
 package part1;
 
+import akka.actor.Actor;
 import akka.actor.typed.ActorSystem;
 import part1.actor.*;
 import part1.message.Message;
+import part1.message.StartTaskReqMessage;
 import part1.ui.GraphicUI;
-import part1.ui.View;
 
 public class Main {
-    private static final String folder = "C:\\Users\\Fabio\\Desktop\\pcd_workspace\\pcd-assignment-03\\data";
-    private static final String stopWordsFile = "C:\\Users\\Fabio\\Desktop\\pcd_workspace\\pcd-assignment-03\\data\\stopwords.txt";
 
     public static void main(String[] args) {
+        final ActorSystem<Message> system =
+                ActorSystem.create(UIActor.create(), "task");
 
-        final ActorSystem<Message> firstActor =
-                ActorSystem.create(UiActor.create(), "task");
+        GraphicUI v = new GraphicUI(system);
 
-        View v = new GraphicUI(firstActor);
+//        String defaultFileChooserText = "assets/stopwords.pdf";
+//        String defaultFolderChooserText = "assets/pdf";
+//
+//        final ActorSystem<Message> system = ActorSystem.create(TaskActor.create(), "task");
+//        system.tell(new StartTaskReqMessage(defaultFolderChooserText, defaultFileChooserText, 10, system));
 
     }
+
 }

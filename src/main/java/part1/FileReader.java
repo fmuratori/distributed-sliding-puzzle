@@ -6,43 +6,23 @@ import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class FileReader {
 
-    public static String getPdfText(File file){
-        String text = "";
-        try {
-            PDDocument document = PDDocument.load(file);
-            AccessPermission ap = document.getCurrentAccessPermission();
-
-            if(!ap.canExtractContent()) {
-                throw new IOException("You do not have permission to extract text");
-            }
-
-            PDFTextStripper stripper = new PDFTextStripper();
-            text = stripper.getText(document);
-
-            document.close();
-
-        } catch(IOException ignored) {}
-        return text;
-    }
-
     /**
+     * il path può essere assoluto o relativo(es. "assets/pdf" va bene)
      * @param folderPath contains the path of the folder
      * @param extension contains the extension of the desired files
      * @return path list of files with a choosen extension in the selected folder
      */
-    public static ArrayList<String> getFilesInFolder(String folderPath, String extension){
+    public static List<String> getFilesInFolder(String folderPath, String extension){
 
         File folder = new File(folderPath);
         File file;
-        ArrayList<String> pdfList = new ArrayList<>();
+        List<String> pdfList = new ArrayList<>();
         String[] fileNameList = folder.list();
 
         if(fileNameList != null) {
@@ -60,13 +40,42 @@ public class FileReader {
 
     }
 
-    public static List<String> getStopWords(String file) {
+    /**
+     * @param path path del file pdf da cui estrarre le parole
+     * @return restituisce la lista delle parole estratte dal file pdf
+     */
+    public static List<String> getWordsFromPdf(String path){
+
+        //le parole estratte dai pdf vengono messe in this.wordList
+        List<String> wordList = new ArrayList<String>();
+
         try {
-            return Arrays.asList(new String(Files.readAllBytes(Paths.get(file))).split("\n"));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
+
+            //legge il file dal file system, lo spezzetta in stringhe
+            //e manda la lista ottenuta al monitor per la conta
+            PDDocument document = PDDocument.load(new File(path));
+            AccessPermission ap = document.getCurrentAccessPermission();
+
+            if(!ap.canExtractContent()) {
+                throw new IOException("You do not have permission to extract text");
+            }
+
+            PDFTextStripper stripper = new PDFTextStripper();
+
+            // This example uses sorting, but in some cases it is more useful to switch it off,
+            // e.g. in some files with columns where the PDF content stream respects the
+            // column order.
+            stripper.setSortByPosition(true);
+
+            String text = stripper.getText(document);
+            wordList.addAll(Arrays.asList(text.trim().replaceAll("[^a-zA-Zςΰωθιμ ]", " ").split("\\s+")));
+
+            document.close();
+
+        } catch(IOException ex) {}
+
+        return wordList;
+
     }
 
 }
