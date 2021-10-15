@@ -3,9 +3,13 @@ package part1.message;
 import javax.swing.*;
 
 public class UIInitializedMessage implements Message {
-    public JTextArea textArea;
+    private JTextArea textArea;
 
     public UIInitializedMessage(JTextArea textArea) {
         this.textArea = textArea;
+    }
+
+    public JTextArea getTextArea() {
+        return textArea;
     }
 }

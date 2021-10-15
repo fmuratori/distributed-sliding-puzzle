@@ -8,11 +8,19 @@ import java.util.Map;
 
 public class ProcessFileResMessage implements Message {
 
-    public String filePath;
-    public List<String> wordList;
+    private String filePath;
+    private List<String> wordList;
 
     public ProcessFileResMessage(String filePath, List<String> wordList) {
         this.filePath = filePath;
         this.wordList = wordList;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public List<String> getWordList() {
+        return wordList;
     }
 }
