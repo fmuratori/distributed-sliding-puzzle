@@ -1,10 +1,10 @@
-package examplePart2;
+package part2.view;
 
-import java.awt.Image;
+import java.awt.*;
 
 public class Tile implements Comparable<Tile>{
-	private Image image;
-	private int originalPosition;
+	private final Image image;
+	private final int originalPosition;
 	private int currentPosition;
 
     public Tile(final Image image, final int originalPosition, final int currentPosition) {
@@ -31,7 +31,6 @@ public class Tile implements Comparable<Tile>{
 
 	@Override
 	public int compareTo(Tile other) {
-		return this.currentPosition < other.currentPosition ? -1
-				: (this.currentPosition == other.currentPosition ? 0 : 1);
+		return Integer.compare(this.currentPosition, other.currentPosition);
 	}
 }

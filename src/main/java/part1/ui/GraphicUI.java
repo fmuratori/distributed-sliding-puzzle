@@ -17,19 +17,13 @@ public class GraphicUI extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private final ActorRef<Message> uiActor;
 
-	private Container contentPane;
 	private JButton startButton, stopButton, chooseDirectoryButton,chooseFileButton;
 	private JTextField directoryPath, filePath, wordNumber;
-	private JLabel directoryPathLabel, filePathLabel, wordNumberLabel;
 	private JTextArea resultConsole;
-	private JScrollPane resultScrollPane;
-	private JFileChooser fileChooser;
 
-//	private String defaultFolderChooserText = "Choose a directory -->";
-//	private String defaultFileChooserText = "Choose a file -->";
 	//for test purpose
-	private String defaultFileChooserText = "assets/stopwords.pdf";
-	private String defaultFolderChooserText = "assets/pdf";
+	private final String defaultFileChooserText = "assets/stopwords.pdf";
+	private final String defaultFolderChooserText = "assets/pdf";
 
 	public GraphicUI(ActorRef<Message> uiActor) {
 		this.uiActor = uiActor;
@@ -41,6 +35,7 @@ public class GraphicUI extends JFrame implements ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 
+		JFileChooser fileChooser;
 		if(e.getSource() == startButton) {
 
 			String[] args = {
@@ -98,10 +93,10 @@ public class GraphicUI extends JFrame implements ActionListener {
 		setSize(700,500);
 		setResizable(false);
 
-		contentPane = getContentPane();
+		Container contentPane = getContentPane();
 		contentPane.setLayout(null);
 
-		directoryPathLabel = new JLabel("Folder path:");
+		JLabel directoryPathLabel = new JLabel("Folder path:");
 		directoryPathLabel.setSize(100,30);
 		directoryPathLabel.setLocation(10, 10);;
 		contentPane.add(directoryPathLabel);
@@ -118,7 +113,7 @@ public class GraphicUI extends JFrame implements ActionListener {
 		chooseDirectoryButton.addActionListener(this);
 		contentPane.add(chooseDirectoryButton);
 
-		wordNumberLabel = new JLabel("Word number: ");
+		JLabel wordNumberLabel = new JLabel("Word number: ");
 		wordNumberLabel.setSize(100,30);
 		wordNumberLabel.setLocation(10, 50);
 		contentPane.add(wordNumberLabel);
@@ -128,7 +123,7 @@ public class GraphicUI extends JFrame implements ActionListener {
 		wordNumber.setLocation(110,50);
 		contentPane.add(wordNumber);
 
-		filePathLabel = new JLabel("File path:");
+		JLabel filePathLabel = new JLabel("File path:");
 		filePathLabel.setSize(100,30);
 		filePathLabel.setLocation(10,90);
 		contentPane.add(filePathLabel);
@@ -159,7 +154,7 @@ public class GraphicUI extends JFrame implements ActionListener {
 		contentPane.add(stopButton);
 
 		resultConsole = new JTextArea();
-		resultScrollPane = new JScrollPane (resultConsole,
+		JScrollPane resultScrollPane = new JScrollPane(resultConsole,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		contentPane.add(resultScrollPane);
 		resultScrollPane.setSize(650, 250);
