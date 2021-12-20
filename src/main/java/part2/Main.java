@@ -5,11 +5,8 @@ import akka.actor.typed.javadsl.Behaviors;
 import akka.remote.RemoteTransportException;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import part2.actor.GameActor;
 import part2.message.Message;
 import part2.view.PuzzleBoard;
-
-import java.util.Optional;
 
 public class Main {
 
