@@ -3,6 +3,7 @@ package part1.ui;
 import akka.actor.typed.ActorRef;
 import part1.message.Message;
 import part1.message.StartTaskReqMessage;
+import part1.message.StopTaskMessage;
 import part1.message.UIInitializedMessage;
 
 import javax.swing.*;
@@ -30,7 +31,7 @@ public class GraphicUI extends JFrame implements ActionListener {
 
 		setView();
 
-		this.uiActor.tell(new UIInitializedMessage(resultConsole));
+		this.uiActor.tell(new UIInitializedMessage(resultConsole, startButton, stopButton));
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -49,8 +50,12 @@ public class GraphicUI extends JFrame implements ActionListener {
 			startButton.setEnabled(false);
 			stopButton.setEnabled(true);
 			//TODO implementare meccanismo di start
-//			PdfWordCounter.parsePdfs(args, resultConsole);
-			this.uiActor.tell(new StartTaskReqMessage(directoryPath.getText(), filePath.getText(), Integer.parseInt(wordNumber.getText()), this.uiActor));
+			this.uiActor.tell(new StartTaskReqMessage(
+					directoryPath.getText(),
+					filePath.getText(),
+					Integer.parseInt(wordNumber.getText()),
+					this.uiActor
+			));
 
 		} else if(e.getSource() == stopButton) {
 
@@ -58,6 +63,7 @@ public class GraphicUI extends JFrame implements ActionListener {
 			startButton.setEnabled(true);
 			//TODO implementare meccanismo di stop
 //			PdfWordCounter.stopTasks();
+			this.uiActor.tell(new StopTaskMessage());
 
 		} else if(e.getSource() == chooseDirectoryButton) {
 

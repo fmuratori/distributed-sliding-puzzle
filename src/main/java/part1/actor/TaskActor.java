@@ -49,6 +49,10 @@ public class TaskActor extends AbstractBehavior<Message> {
         this.wordNumber = message.getWordNumber();
         this.uiActor = message.getCaller();
 
+        //reset delle variabili
+        this.totalWordsCount = 0;
+        this.wordCountMap = new LinkedHashMap<>();
+
         filePathList.get().forEach(filePath -> {
             ActorRef<Message> worker = getContext().spawnAnonymous(FileWordsCounterActor.create());
             worker.tell(new ProcessFileReqMessage(filePath, stopWords.get(), getContext().getSelf()));
@@ -99,6 +103,5 @@ public class TaskActor extends AbstractBehavior<Message> {
 
         return result;
     }
-
 }
 

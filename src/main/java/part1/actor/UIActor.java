@@ -15,8 +15,11 @@ import java.util.List;
 public class UIActor extends AbstractBehavior<Message> {
 
     private JTextArea textArea;
+    private JButton startButton, stopButton;
+
     private final ActorRef<Message> taskActor;
     private Integer processedFiles = 0;
+    private boolean stopped = false;
 
     //servono per calcolare il tempo di esecuzione
     Calendar timeStart, timeEnd;
@@ -36,37 +39,58 @@ public class UIActor extends AbstractBehavior<Message> {
                 .onMessage(UIInitializedMessage.class, this::onUIInitializedMessage)
                 .onMessage(StartTaskReqMessage.class, this::onStartTaskReqMessage)
                 .onMessage(TaskUpdateMessage.class, this::onTaskUpdateMessage)
+                .onMessage(StopTaskMessage.class, this::onStopTaskMessage)
                 .build();
     }
 
     private Behavior<Message> onUIInitializedMessage(UIInitializedMessage message) {
         this.textArea = message.getTextArea();
+        this.startButton = message.getStartButton();
+        this.stopButton = message.getStopButton();
+
         return this;
     }
 
     private Behavior<Message> onStartTaskReqMessage(StartTaskReqMessage message) {
         timeStart = Calendar.getInstance();
 
+        this.processedFiles = 0;
+        this.stopped = false;
+
         taskActor.tell(message);
+        return this;
+    }
+
+    private Behavior<Message> onStopTaskMessage(StopTaskMessage message){
+        this.stopped = true;
         return this;
     }
 
     private Behavior<Message> onTaskUpdateMessage(TaskUpdateMessage message) {
 
-        processedFiles += 1;
+        this.processedFiles += 1;
         if(processedFiles == message.getTotalFileNumber()) {
-            timeEnd = Calendar.getInstance();
+            this.timeEnd = Calendar.getInstance();
             System.out.println("TEMPO DI ESECUZIONE TASK: " + (timeEnd.getTimeInMillis() - timeStart.getTimeInMillis()));
         }
 
-        textArea.setText(message.getTotalWordsCount().toString());
+        if(this.processedFiles == message.getTotalFileNumber()){
+            this.startButton.setEnabled(true);
+            this.stopButton.setEnabled(false);
+        }
 
-        //update textarea of the ui
-        textArea.setText(getResultText(
-                message.getWordList(),
-                message.getTotalWordsCount(),
-                message.getTotalFileNumber())
-        );
+        if(!stopped){
+
+            this.textArea.setText(message.getTotalWordsCount().toString());
+
+            //update textarea of the ui
+            this.textArea.setText(getResultText(
+                    message.getWordList(),
+                    message.getTotalWordsCount(),
+                    message.getTotalFileNumber())
+            );
+
+        }
 
         return this;
     }
@@ -78,7 +102,7 @@ public class UIActor extends AbstractBehavior<Message> {
      */
     private String getResultText(List<String[]> wordList, Integer totalWordsCount, Integer totalFileNumber){
 
-        String textBlock = "Pdf analizzati: " + processedFiles + "/" + totalFileNumber + "\n" +
+        String textBlock = "Pdf analizzati: " + this.processedFiles + "/" + totalFileNumber + "\n" +
                 "Numero di parole totali: " + totalWordsCount + "\n";
 
         for(String[] word: wordList){
