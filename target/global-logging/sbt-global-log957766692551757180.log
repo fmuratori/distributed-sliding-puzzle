@@ -1,0 +1,103 @@
+[debug] > Exec(early(addDefaultCommands), None, None)
+[debug] > Exec(addDefaultCommands, None, None)
+[debug] > Exec(early(initialize), None, None)
+[debug] > Exec(initialize, None, None)
+[debug] > Exec(early(addPluginSbtFile="""C:\Users\Fabio\AppData\Local\Temp\idea11.sbt"""), None, None)
+[debug] > Exec(addPluginSbtFile="""C:\Users\Fabio\AppData\Local\Temp\idea11.sbt""", None, None)
+[debug] > Exec(boot, None, None)
+[debug] > Exec(writeSbtVersion, None, None)
+[debug] > Exec(reload, None, None)
+[debug] > Exec(sbtStashOnFailure, None, None)
+[debug] > Exec(onFailure loadFailed, None, None)
+[debug] > Exec(loadp, None, None)
+[info] welcome to sbt 1.4.3 (Oracle Corporation Java 16.0.2)
+[debug]       Load.loadUnit: plugins took 109.0321ms
+[debug]       Load.loadUnit: defsScala took 0.446ms
+[debug] [Loading] Scanning directory C:\Users\Fabio\.sbt\1.0\plugins
+[debug] [Loading] Found non-root projects 
+[debug] [Loading] Done in C:\Users\Fabio\.sbt\1.0\plugins, returning: ()
+[debug] deducing auto plugins based on known facts Set(Atom(sbt.plugins.CorePlugin)) and clauses Clauses(List(Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.IvyPlugin))), Clause(Atom(sbt.ScriptedPlugin),Set(Atom(sbt.plugins.JvmPlugin))), Clause(Atom(sbt.plugins.SbtPlugin),Set(Atom(sbt.ScriptedPlugin))), Clause(Atom(sbt.plugins.SemanticdbPlugin),Set(Atom(sbt.plugins.JvmPlugin))), Clause(Atom(sbt.plugins.JUnitXmlReportPlugin),Set(Atom(sbt.plugins.JvmPlugin))), Clause(Atom(sbt.plugins.MiniDependencyTreePlugin),Set(Atom(sbt.plugins.JvmPlugin))), Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.IvyPlugin))), Clause(Atom(sbt.plugins.IvyPlugin),Set(Atom(sbt.plugins.JvmPlugin))), Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.SemanticdbPlugin))), Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.JUnitXmlReportPlugin))), Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.Giter8TemplatePlugin))), Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.MiniDependencyTreePlugin)))))
+[debug]   :: deduced result: Matched(sbt.plugins.CorePlugin,sbt.plugins.Giter8TemplatePlugin,sbt.plugins.IvyPlugin,sbt.plugins.JvmPlugin,sbt.plugins.MiniDependencyTreePlugin,sbt.plugins.JUnitXmlReportPlugin,sbt.plugins.SemanticdbPlugin)
+[debug] Plugins.deducer#function took 41.2093 ms
+[debug]           Load.resolveProject(global-plugins) took 71.0909ms
+[debug]         Load.loadTransitive: finalizeProject(Project(id global-plugins, base: C:\Users\Fabio\.sbt\1.0\plugins, plugins: List(<none>))) took 149.406ms
+[debug] [Loading] Done in C:\Users\Fabio\.sbt\1.0\plugins, returning: (global-plugins)
+[debug]       Load.loadUnit: loadedProjectsRaw took 192.9004ms
+[debug]       Load.loadUnit: cleanEvalClasses took 0.3502ms
+[debug]     Load.loadUnit(file:/C:/Users/Fabio/.sbt/1.0/plugins/, ...) took 317.8459ms
+[debug]   Load.apply: load took 576.8565ms
+[debug]   Load.apply: resolveProjects took 9.2777ms
+[debug]   Load.apply: finalTransforms took 99.6545ms
+[debug]   Load.apply: config.delegates took 12.3593ms
+[debug]   Load.apply: Def.make(settings)... took 1664.868ms
+[debug]   Load.apply: structureIndex took 176.0354ms
+[debug]   Load.apply: mkStreams took 2.8647ms
+[info] loading global plugins from C:\Users\Fabio\.sbt\1.0\plugins
+[debug] Running task... Cancel: Signal, check cycles: false, forcegc: true
+[debug] Load.defaultLoad until apply took 5362.3524ms
+[debug]           Load.loadUnit: plugins took 39.4485ms
+[debug]           Load.loadUnit: defsScala took 0.0049ms
+[debug] [Loading] Scanning directory C:\Users\Fabio\Desktop\pcd_workspace\pcd-assignment-03\project
+[debug]             Load.loadUnit: mkEval took 8.2724ms
+[debug] [Loading] Found non-root projects 
+[debug] [Loading] Done in C:\Users\Fabio\Desktop\pcd_workspace\pcd-assignment-03\project, returning: ()
+[debug] deducing auto plugins based on known facts Set(Atom(sbt.plugins.CorePlugin)) and clauses Clauses(List(Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.IvyPlugin))), Clause(Atom(sbt.ScriptedPlugin),Set(Atom(sbt.plugins.JvmPlugin))), Clause(Atom(sbt.plugins.SbtPlugin),Set(Atom(sbt.ScriptedPlugin))), Clause(Atom(sbt.plugins.SemanticdbPlugin),Set(Atom(sbt.plugins.JvmPlugin))), Clause(Atom(sbt.plugins.JUnitXmlReportPlugin),Set(Atom(sbt.plugins.JvmPlugin))), Clause(Atom(sbt.plugins.MiniDependencyTreePlugin),Set(Atom(sbt.plugins.JvmPlugin))), Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.IvyPlugin))), Clause(Atom(sbt.plugins.IvyPlugin),Set(Atom(sbt.plugins.JvmPlugin))), Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.SemanticdbPlugin))), Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.JUnitXmlReportPlugin))), Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.Giter8TemplatePlugin))), Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.MiniDependencyTreePlugin)))))
+[debug]   :: deduced result: Matched(sbt.plugins.CorePlugin,sbt.plugins.Giter8TemplatePlugin,sbt.plugins.IvyPlugin,sbt.plugins.JvmPlugin,sbt.plugins.MiniDependencyTreePlugin,sbt.plugins.JUnitXmlReportPlugin,sbt.plugins.SemanticdbPlugin)
+[debug] Plugins.deducer#function took 2.7518 ms
+[info] loading settings for project pcd-assignment-03-build from idea11.sbt ...
+[debug]               Load.resolveProject(pcd-assignment-03-build) took 14.6787ms
+[debug]             Load.loadTransitive: finalizeProject(Project(id pcd-assignment-03-build, base: C:\Users\Fabio\Desktop\pcd_workspace\pcd-assignment-03\project, plugins: List(<none>))) took 18.3815ms
+[debug] [Loading] Done in C:\Users\Fabio\Desktop\pcd_workspace\pcd-assignment-03\project, returning: (pcd-assignment-03-build)
+[debug]           Load.loadUnit: loadedProjectsRaw took 212.5505ms
+[debug]           Load.loadUnit: cleanEvalClasses took 7.5525ms
+[debug]         Load.loadUnit(file:/C:/Users/Fabio/Desktop/pcd_workspace/pcd-assignment-03/project/, ...) took 260.707ms
+[debug]       Load.apply: load took 262.9658ms
+[debug]       Load.apply: resolveProjects took 0.1296ms
+[debug]       Load.apply: finalTransforms took 22.1876ms
+[debug]       Load.apply: config.delegates took 0.5583ms
+[debug]       Load.apply: Def.make(settings)... took 133.0603ms
+[debug]       Load.apply: structureIndex took 45.2026ms
+[debug]       Load.apply: mkStreams took 0.0031ms
+[info] loading project definition from C:\Users\Fabio\Desktop\pcd_workspace\pcd-assignment-03\project
+[debug] Running task... Cancel: Signal, check cycles: false, forcegc: true
+[debug]     Load.loadUnit: plugins took 873.3257ms
+[debug]     Load.loadUnit: defsScala took 0.0028ms
+[debug] [Loading] Scanning directory C:\Users\Fabio\Desktop\pcd_workspace\pcd-assignment-03
+[debug]       Load.loadUnit: mkEval took 0.287ms
+[debug] [Loading] Found non-root projects 
+[debug] [Loading] Done in C:\Users\Fabio\Desktop\pcd_workspace\pcd-assignment-03, returning: ()
+[debug] deducing auto plugins based on known facts Set(Atom(sbt.plugins.CorePlugin)) and clauses Clauses(List(Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.IvyPlugin))), Clause(Atom(sbt.ScriptedPlugin),Set(Atom(sbt.plugins.JvmPlugin))), Clause(Atom(sbt.plugins.SbtPlugin),Set(Atom(sbt.ScriptedPlugin))), Clause(Atom(sbt.plugins.SemanticdbPlugin),Set(Atom(sbt.plugins.JvmPlugin))), Clause(Atom(sbt.plugins.JUnitXmlReportPlugin),Set(Atom(sbt.plugins.JvmPlugin))), Clause(Atom(sbt.plugins.MiniDependencyTreePlugin),Set(Atom(sbt.plugins.JvmPlugin))), Clause(Atom(org.jetbrains.sbt.StructurePlugin),Set(Atom(sbt.plugins.JvmPlugin))), Clause(Atom(org.jetbrains.sbt.IdeaShellPlugin),Set(Atom(sbt.plugins.JvmPlugin))), Clause(Atom(org.jetbrains.sbt.indices.SbtIntellijIndicesPlugin),Set(Atom(sbt.plugins.JvmPlugin))), Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.IvyPlugin))), Clause(Atom(sbt.plugins.IvyPlugin),Set(Atom(sbt.plugins.JvmPlugin))), Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.SemanticdbPlugin))), Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.JUnitXmlReportPlugin))), Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.Giter8TemplatePlugin))), Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.MiniDependencyTreePlugin))), Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(org.jetbrains.sbt.StructurePlugin))), Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(org.jetbrains.sbt.IdeaShellPlugin))), Clause(And(Set(Atom(sbt.plugins.CorePlugin), Atom(sbt.plugins.JvmPlugin))),Set(Atom(org.jetbrains.sbt.indices.SbtIntellijIndicesPlugin)))))
+[debug]   :: deduced result: Matched(sbt.plugins.CorePlugin,sbt.plugins.Giter8TemplatePlugin,sbt.plugins.IvyPlugin,sbt.plugins.JvmPlugin,sbt.plugins.SemanticdbPlugin,org.jetbrains.sbt.indices.SbtIntellijIndicesPlugin,sbt.plugins.JUnitXmlReportPlugin,org.jetbrains.sbt.IdeaShellPlugin,org.jetbrains.sbt.StructurePlugin,sbt.plugins.MiniDependencyTreePlugin)
+[debug] Plugins.deducer#function took 3.0149 ms
+[info] loading settings for project pcd-assignment-03 from build.sbt ...
+[debug]         Load.resolveProject(pcd-assignment-03) took 36.2801ms
+[debug]       Load.loadTransitive: finalizeProject(Project(id pcd-assignment-03, base: C:\Users\Fabio\Desktop\pcd_workspace\pcd-assignment-03, plugins: List(<none>))) took 41.2097ms
+[debug] [Loading] Done in C:\Users\Fabio\Desktop\pcd_workspace\pcd-assignment-03, returning: (pcd-assignment-03)
+[debug]     Load.loadUnit: loadedProjectsRaw took 140.684ms
+[debug]     Load.loadUnit: cleanEvalClasses took 20.507ms
+[debug]   Load.loadUnit(file:/C:/Users/Fabio/Desktop/pcd_workspace/pcd-assignment-03/, ...) took 1035.6215ms
+[debug] Load.apply: load took 1041.3223ms
+[debug] Load.apply: resolveProjects took 0.1621ms
+[debug] Load.apply: finalTransforms took 45.7857ms
+[debug] Load.apply: config.delegates took 0.5937ms
+[debug] Load.apply: Def.make(settings)... took 162.9798ms
+[debug] Load.apply: structureIndex took 65.5361ms
+[debug] Load.apply: mkStreams took 0.0026ms
+[info] set current project to pcd-assignment-03 (in build file:/C:/Users/Fabio/Desktop/pcd_workspace/pcd-assignment-03/)
+[debug] > Exec(sbtPopOnFailure, None, None)
+[debug] > Exec(resumeFromFailure, None, None)
+[debug] > Exec(notifyUsersAboutShell, None, None)
+[debug] > Exec(iflast shell, None, None)
+[debug] > Exec(; set ideaPort in Global := 49907 ; idea-shell, None, None)
+[debug] > Exec(set ideaPort in Global := 49907, None, None)
+[info] Defining Global / ideaPort
+[info] The new value will be used by Compile / compile, Test / compile
+[debug] Defining 
+[debug] 	Global / ideaPort
+[debug] 
+[debug] The new value will be used by 
+[debug] 	Compile / compile
+[debug] 	Test / compile
+[info] Reapplying settings...
+[info] set current project to pcd-assignment-03 (in build file:/C:/Users/Fabio/Desktop/pcd_workspace/pcd-assignment-03/)
+[debug] > Exec(idea-shell, None, None)

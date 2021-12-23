@@ -1,6 +1,7 @@
 package part2.view;
 
 import akka.actor.typed.ActorRef;
+import part2.actor.GameActor;
 import part2.message.Message;
 import part2.message.UIInitializedMessage;
 
@@ -95,6 +96,7 @@ public class PuzzleBoard extends JFrame implements PuzzleBoardI{
             board.add(btn);
             btn.setBorder(BorderFactory.createLineBorder(Color.gray));
             btn.addActionListener(actionListener -> selectionManager.selectTile(tile, () -> {
+                this.uiActor.tell(new GameActor.Increment());
                 paintPuzzle(board);
                 checkSolution();
             }));

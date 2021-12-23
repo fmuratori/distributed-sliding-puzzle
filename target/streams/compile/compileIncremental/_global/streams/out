@@ -1,0 +1,35 @@
+[debug] [zinc] IncrementalCompile -----------
+[debug] IncrementalCompile.incrementalCompile
+[debug] previous = Stamps for: 59 products, 45 sources, 7 libraries
+[debug] current source = Set(${BASE}/src/main/java/ass1/model/Dictionary.java, ${BASE}/src/main/java/part2/actor/GameActor.java, ${BASE}/src/main/java/part1/FileReader.java, ${BASE}/src/main/java/ass1/controller/ModelObserver.java, ${BASE}/src/main/java/part2GameDemo/PuzzleBoard.java, ${BASE}/src/main/java/part2GameDemo/TileButton.java, ${BASE}/src/main/java/part1/actor/TaskActor.java, ${BASE}/src/main/java/part2/test/ClusterTest.java, ${BASE}/src/main/java/part2/message/UIInitializedMessage.java, ${BASE}/src/main/java/ass1/model/Barrier.java, ${BASE}/src/main/java/part1/WordsCounter.java, ${BASE}/src/main/java/part1/Main.java, ${BASE}/src/main/java/part2/view/TileButton.java, ${BASE}/src/main/java/ass1/model/TextProcessor.java, ${BASE}/src/main/java/part1/ui/GraphicUI.java, ${BASE}/src/main/java/part1/actor/UIActor.java, ${BASE}/src/main/java/part2/view/PuzzleBoard.java, ${BASE}/src/main/java/part2GameDemo/Tile.java, ${BASE}/src/main/java/ass1/model/Model.java, ${BASE}/src/main/java/ass1/controller/ViewObserver.java, ${BASE}/src/main/java/part2/Main.java, ${BASE}/src/main/java/ass1/model/Latch.java, ${BASE}/src/main/scala/part2/Main.scala, ${BASE}/src/main/java/part1/message/ProcessFileReqMessage.java, ${BASE}/src/main/java/ass1/controller/Controller.java, ${BASE}/src/main/java/ass1/model/ChunkLoader.java, ${BASE}/src/main/java/part1/actor/FileWordsCounterActor.java, ${BASE}/src/main/java/part1/message/Message.java, ${BASE}/src/main/java/part2/view/PuzzleBoardI.java, ${BASE}/src/main/java/part2GameDemo/SelectionManager.java, ${BASE}/src/main/java/ass1/model/Flag.java, ${BASE}/src/main/java/part2GameDemo/Application.java, ${BASE}/src/main/java/ass1/view/View.java, ${BASE}/src/main/java/part2/message/Message.java, ${BASE}/src/main/java/ass1/controller/Utils.java, ${BASE}/src/main/java/part2/view/Tile.java, ${BASE}/src/main/java/part1/message/UIInitializedMessage.java, ${BASE}/src/main/java/ass1/controller/MainSequential.java, ${BASE}/src/main/java/ass1/model/FilesFinder.java, ${BASE}/src/main/java/part1/message/ProcessFileResMessage.java, ${BASE}/src/main/java/part2/view/SelectionManager.java, ${BASE}/src/main/java/part1/message/TaskUpdateMessage.java, ${BASE}/src/main/java/part1/message/StartTaskReqMessage.java, ${BASE}/src/main/java/ass1/controller/Main.java, ${BASE}/src/main/java/ass1/model/ClosableBoundedBuffer.java)
+[debug] Invalidating '${CSR_CACHE}/https/repo1.maven.org/maven2/org/apache/pdfbox/pdfbox/2.0.2/pdfbox-2.0.2.jar' because org.apache.pdfbox.pdmodel.PDDocument is now provided by ${CSR_CACHE}/https/repo1.maven.org/maven2/org/apache/pdfbox/pdfbox/2.0.22/pdfbox-2.0.22.jar
+[debug] > initialChanges = InitialChanges(Changes(added = Set(), removed = Set(), changed = Set(), unmodified = ...),Set(),Set(${CSR_CACHE}/https/repo1.maven.org/maven2/org/apache/pdfbox/pdfbox/2.0.2/pdfbox-2.0.2.jar),API Changes: Set())
+[debug] 
+[debug] Initial source changes:
+[debug] 	removed: Set()
+[debug] 	added: Set()
+[debug] 	modified: Set()
+[debug] Invalidated products: Set()
+[debug] External API changes: API Changes: Set()
+[debug] Modified binary dependencies: Set(${CSR_CACHE}/https/repo1.maven.org/maven2/org/apache/pdfbox/pdfbox/2.0.2/pdfbox-2.0.2.jar)
+[debug] Initial directly invalidated classes: Set()
+[debug] Sources indirectly invalidated by:
+[debug] 	product: Set()
+[debug] 	binary dep: Set(${BASE}/src/main/java/part1/FileReader.java, ${BASE}/src/main/java/ass1/model/ChunkLoader.java, ${BASE}/src/main/java/ass1/controller/MainSequential.java)
+[debug] 	external source: Set()
+[debug] All initially invalidated classes: Set()
+[debug] All initially invalidated sources:Set(${BASE}/src/main/java/part1/FileReader.java, ${BASE}/src/main/java/ass1/model/ChunkLoader.java, ${BASE}/src/main/java/ass1/controller/MainSequential.java)
+[debug] Initial set of included nodes: 
+[debug] compilation cycle 1
+[info] compiling 3 Java sources to C:\Users\Fabio\Desktop\pcd_workspace\pcd-assignment-03\target\scala-2.13\classes ...
+[debug] Attempting to call com.sun.tools.javac.api.JavacTool@49d5e7f3 directly...
+[debug] Java compilation took 2.0323627 s
+[debug] Java analysis took 0.2865968 s
+[debug] Java compilation + analysis took 2.3368998 s
+[info] done compiling
+[debug] New invalidations:
+[debug] Initial set of included nodes: 
+[debug] Previously invalidated, but (transitively) depend on new invalidations:
+[debug] Final step, transitive dependencies:
+[debug] 	Set()
+[debug] No classes were invalidated.

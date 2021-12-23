@@ -1,0 +1,14 @@
+[debug] Created transactional ClassFileManager with tempDir = C:\Users\Fabio\Desktop\pcd_workspace\pcd-assignment-03\target\scala-2.13\classes.bak
+[debug] About to delete class files:
+[debug] 	FileReader.class
+[debug] 	ChunkLoader.class
+[debug] 	MainSequential.class
+[debug] We backup class files:
+[debug] 	FileReader.class
+[debug] 	ChunkLoader.class
+[debug] 	MainSequential.class
+[debug] Registering generated classes:
+[debug] 	FileReader.class
+[debug] 	MainSequential.class
+[debug] 	ChunkLoader.class
+[debug] Removing the temporary directory used for backing up class files: C:\Users\Fabio\Desktop\pcd_workspace\pcd-assignment-03\target\scala-2.13\classes.bak
