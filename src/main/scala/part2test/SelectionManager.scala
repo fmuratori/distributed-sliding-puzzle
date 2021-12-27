@@ -7,7 +7,7 @@ class SelectionManager {
   def selectTile(tile: Tile, runnable: () => Unit): Unit = {
     if (selectionActive) {
       selectionActive = false
-      swap(selectedTile, tile)
+//      swap(selectedTile, tile)
       runnable.apply()
     }
     else {

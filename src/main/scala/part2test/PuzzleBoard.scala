@@ -19,6 +19,7 @@ class PuzzleBoard(val rows: Int, val columns: Int, val imagePath: String, val ac
 
   val board = new JPanel
   var tiles:List[Tile] = List()
+  var selectedTile: Option[Tile] = None
   val selectionManager = new SelectionManager
 
   board.setBorder(BorderFactory.createLineBorder(Color.gray))
@@ -40,23 +41,30 @@ class PuzzleBoard(val rows: Int, val columns: Int, val imagePath: String, val ac
     val imageWidth = image.getWidth(null)
     val imageHeight = image.getHeight(null)
     var position = 0
-    var randomPositions:List[Integer] = List()
-    IntStream.range(0, rows * columns).forEach((item: Int) => {
-      randomPositions = randomPositions :+ item
-    })
-    randomPositions = Random.shuffle(randomPositions)
+
+//    var randomPositions:List[Integer] = List()
+//    IntStream.range(0, rows * columns).forEach((item: Int) => {
+//      randomPositions = randomPositions :+ item
+//    })
+//    randomPositions = Random.shuffle(randomPositions)
 
     tiles = List()
     for (i <- 0 until rows) {
       for (j <- 0 until columns) {
         val imagePortion = createImage(new FilteredImageSource(image.getSource, new CropImageFilter(j * imageWidth / columns, i * imageHeight / rows, imageWidth / columns, imageHeight / rows)))
-        tiles = tiles :+ new Tile(imagePortion, position, randomPositions(position))
+        tiles = tiles :+ new Tile(imagePortion, position, position)
         position += 1
       }
     }
   }
 
   def updateBoard(value: List[Int]): Unit = {
+    var i:Int = 0
+    for (tile <- tiles) {
+      tile.currentPosition = value(i)
+      i = i + 1
+    }
+
     paintPuzzle(board)
     checkSolution()
   }
@@ -70,11 +78,14 @@ class PuzzleBoard(val rows: Int, val columns: Int, val imagePath: String, val ac
       board.add(btn)
       btn.setBorder(BorderFactory.createLineBorder(Color.gray))
       btn.addActionListener((_: ActionEvent) => {
-        selectionManager.selectTile(tile, () => {
-          actorRef ! Increment(tiles
-            .sortBy((t:Tile) => t.originalPosition )
-            .map(t => t.currentPosition))
-        })
+        if (selectedTile.isDefined) {
+          val newBoard = tiles.map(t => t.currentPosition)
+            .updated(selectedTile.get.currentPosition, tile.currentPosition)
+            .updated(tile.currentPosition, selectedTile.get.currentPosition)
+          actorRef ! Increment(newBoard)
+          selectedTile = None
+        } else
+          selectedTile = Option(tile)
       })
     })
     pack()
