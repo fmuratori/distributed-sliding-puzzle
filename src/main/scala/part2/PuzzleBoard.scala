@@ -1,5 +1,8 @@
 package part2
 
+import akka.actor.typed.ActorRef
+import part2.DataActorListener.{Command, Increment}
+
 import java.awt.event.ActionEvent
 import java.awt.image.{BufferedImage, CropImageFilter, FilteredImageSource}
 import java.awt.{BorderLayout, Color, GridLayout}
@@ -9,7 +12,7 @@ import javax.imageio.ImageIO
 import javax.swing.{BorderFactory, JFrame, JOptionPane, JPanel, WindowConstants}
 import scala.util.Random
 
-class PuzzleBoard(val rows: Int, val columns: Int, val imagePath: String) extends JFrame {
+class PuzzleBoard(val rows: Int, val columns: Int, val imagePath: String, val actorRef: ActorRef[Command]) extends JFrame {
   setTitle("Puzzle")
   setResizable(false)
   setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE)
@@ -62,6 +65,7 @@ class PuzzleBoard(val rows: Int, val columns: Int, val imagePath: String) extend
       btn.setBorder(BorderFactory.createLineBorder(Color.gray))
       btn.addActionListener((_: ActionEvent) => {
         selectionManager.selectTile(tile, () => {
+          actorRef ! Increment
           paintPuzzle(board)
           checkSolution()
         })
