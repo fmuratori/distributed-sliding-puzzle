@@ -27,7 +27,9 @@ object Application {
           """).withFallback(ConfigFactory.load("application_cluster"))
 
         // Create an Akka system
-        // ActorSystem[Nothing](RootClusterBehavior(), "ClusterSystem", config)
+        ActorSystem[Nothing](RootClusterBehavior(), "ClusterSystem", config)
+
+        // DistributedData actor
         var data: GCounterKey = null;
         var dataActorRef: ActorRef[Command] = null;
         ActorSystem[Nothing](Behaviors.setup[Nothing] { context =>

@@ -1,7 +1,7 @@
 package part2
 
 import akka.actor.typed.ActorRef
-import part2.DataActorListener.{Command, Increment}
+import part2.DataActorListener.{Command, GetValue, Increment}
 
 import java.awt.event.ActionEvent
 import java.awt.image.{BufferedImage, CropImageFilter, FilteredImageSource}

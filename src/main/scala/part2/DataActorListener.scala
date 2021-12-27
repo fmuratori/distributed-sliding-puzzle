@@ -31,7 +31,8 @@ object DataActorListener {
           Behaviors.receiveMessage[Command] {
             case Increment =>
               replicatorAdapter.askUpdate(
-                askReplyTo => Replicator.Update(key, GCounter.empty, Replicator.WriteLocal, askReplyTo)(_ :+ 1),
+                askReplyTo => Replicator.Update(key, GCounter.empty, Replicator.WriteLocal, askReplyTo)
+                (x => x.increment(node, 1)),
                 InternalUpdateResponse.apply)
 
               Behaviors.same
@@ -54,6 +55,7 @@ object DataActorListener {
             case internal: InternalCommand =>
               internal match {
                 case InternalUpdateResponse(rsp) => {
+                  /* l'attore locale cerca di effettuare un update */
                   Behaviors.same
                 } // ok
 
@@ -66,7 +68,9 @@ object DataActorListener {
                   Behaviors.unhandled // not dealing with failures
 
                 case InternalSubscribeResponse(chg @ Replicator.Changed(`key`)) =>
+                  /* il cluster divulga il nuovo valore a tutti gli attori */
                   val value = chg.get(key).value.intValue
+                  println(value)
                   updated(value)
 
                 case InternalSubscribeResponse(Replicator.Deleted(_)) =>
