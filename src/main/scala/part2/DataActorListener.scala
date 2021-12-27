@@ -3,7 +3,7 @@ package part2
 import akka.actor.typed.ActorRef
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
-import akka.cluster.ddata.{GCounter, GCounterKey, SelfUniqueAddress}
+import akka.cluster.ddata.{GCounter, GCounterKey, ORMultiMap, SelfUniqueAddress}
 import akka.cluster.ddata.typed.scaladsl.{DistributedData, Replicator}
 
 object DataActorListener {
@@ -26,6 +26,19 @@ object DataActorListener {
       DistributedData.withReplicatorMessageAdapter[Command, GCounter] { replicatorAdapter =>
         // Subscribe to changes of the given `key`.
         replicatorAdapter.subscribe(key, InternalSubscribeResponse.apply)
+
+//        implicit val node: SelfUniqueAddress = DistributedData(context.system).selfUniqueAddress
+//        val m0 = ORMultiMap.empty[String, Int]
+//        println(m0.entries)
+//        val m1 = m0 :+ ("a" -> Set(1, 2, 3))
+//        println(m1.entries)
+//        val m2 = m1.addBinding(node, "a", 4)
+//        println(m2.entries)
+//        val m3 = m2.removeBinding(node, "a", 2)
+//        println(m3.entries)
+//        val m4 = m3.addBinding(node, "b", 1)
+//        println(m4.entries)
+
 
         def updated(cachedValue: Int): Behavior[Command] = {
           Behaviors.receiveMessage[Command] {
