@@ -1,4 +1,4 @@
-package examplePart2;
+package part2GameDemo;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;

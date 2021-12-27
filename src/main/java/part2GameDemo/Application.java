@@ -1,4 +1,4 @@
-package examplePart2;
+package part2GameDemo;
 
 /**
  * 
@@ -12,10 +12,10 @@ package examplePart2;
 public class Application {
 
 	public static void main(final String[] args) {
-		final int n = 3;
-		final int m = 5;
+		final int n = 1;
+		final int m = 2;
 		
-		final String imagePath = "src/main/java/examplePart2/bletchley-park-mansion.jpg";
+		final String imagePath = "src/main/resources/bletchley-park-mansion.jpg";
 		
 		final PuzzleBoard puzzle = new PuzzleBoard(n, m, imagePath);
         puzzle.setVisible(true);

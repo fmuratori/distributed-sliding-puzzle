@@ -1,18 +1,16 @@
-package examplePart2;
+package part2GameDemo;
 
 public class SelectionManager {
 
 	private boolean selectionActive = false;
 	private Tile selectedTile;
 
-	public void selectTile(final Tile tile, final Listener listener) {
+	public void selectTile(final Tile tile, final Runnable runnable) {
 		
 		if(selectionActive) {
 			selectionActive = false;
-			
 			swap(selectedTile, tile);
-			
-			listener.onSwapPerformed();
+			runnable.run();
 		} else {
 			selectionActive = true;
 			selectedTile = tile;
@@ -24,9 +22,5 @@ public class SelectionManager {
 		t1.setCurrentPosition(t2.getCurrentPosition());
 		t2.setCurrentPosition(pos);
 	}
-	
-	@FunctionalInterface
-	interface Listener{
-		void onSwapPerformed();
-	}
+
 }
