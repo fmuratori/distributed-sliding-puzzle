@@ -1,16 +1,20 @@
 package part2test
 
-import akka.actor.typed.{Behavior}
+import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import akka.cluster.ddata.typed.scaladsl.{DistributedData, Replicator}
-import akka.cluster.ddata.{ORMultiMap, ORMultiMapKey, SelfUniqueAddress}
+import akka.cluster.ddata.{Flag, FlagKey, ORMultiMap, ORMultiMapKey, SelfUniqueAddress}
+import part2.DataActorListener.InternalUpdateResponse
 
 object DataActorListener {
   sealed trait Command
   case class ViewReady(puzzleBoard: PuzzleBoard) extends Command
   case class Increment(currentMap: List[Int]) extends Command
+  final case class GetValue() extends Command
   private sealed trait InternalCommand extends Command
   private case class InternalUpdateResponse(rsp: Replicator.UpdateResponse[ORMultiMap[String, List[Int]]]) extends InternalCommand
+  private case class InternalGetResponse(rsp: Replicator.GetResponse[ORMultiMap[String, List[Int]]])
+    extends InternalCommand
   private case class InternalSubscribeResponse(chg: Replicator.SubscribeResponse[ORMultiMap[String, List[Int]]]) extends InternalCommand
 
   private var puzzleBoard:Option[PuzzleBoard] = None
@@ -34,19 +38,29 @@ object DataActorListener {
               Behaviors.same
 
             case Increment(map) =>
-              puzzleBoard.get.disableBoard()
               replicatorAdapter.askUpdate(
                 askReplyTo => Replicator.Update(key, ORMultiMap.empty[String, List[Int]], Replicator.WriteLocal, askReplyTo)
                 (x => x.put(node, "map", Set(map))),
                 InternalUpdateResponse.apply)
-//              println("Increment request: ", map)
+                // println("Increment request: ", map)
+              Behaviors.same
+
+            case GetValue() =>
+              replicatorAdapter.askGet(
+                askReplyTo => Replicator.Get(key, Replicator.ReadLocal, askReplyTo),
+                value => InternalGetResponse(value))
+
               Behaviors.same
 
             case internal: InternalCommand =>
               internal match {
-                case InternalUpdateResponse(rsp) =>
-                  /* l'attore locale cerca di effettuare un update */
-                  Behaviors.same // ok
+                case InternalUpdateResponse(rsp) => {
+                  Behaviors.same
+                }
+
+                case InternalGetResponse(value) =>
+                  println(value)
+                  Behaviors.unhandled
 
                 case InternalSubscribeResponse(chg@Replicator.Changed(`key`)) =>
                   /* il cluster divulga il nuovo valore a tutti gli attori */
@@ -54,10 +68,8 @@ object DataActorListener {
                   println("Increment response: ", value)
                   puzzleBoard.get.updateBoard(value)
                   updated()
-
               }
           }
-
           updated()
         }
       }

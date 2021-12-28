@@ -17,21 +17,22 @@ object Application {
     for (port <- ports) {
       try {
         // Override the configuration of the port
-//        val config = ConfigFactory.parseString(s"""
-//          akka.remote.artery.canonical.port=$port
-//          akka.actor.allow-java-serialization = on
-//          """).withFallback(ConfigFactory.load("application_cluster"))
+        val config = ConfigFactory.parseString(s"""
+          akka.remote.artery.canonical.port=$port
+          akka.actor.allow-java-serialization = on
+          """).withFallback(ConfigFactory.load("application_cluster"))
 
         // Create an Akka system
-//        ActorSystem[Nothing](RootClusterBehavior(), "ClusterSystem", config)
+        ActorSystem[Nothing](RootClusterBehavior(), "ClusterSystem", config)
 
         // DistributedData actor
-//        var dataActorRef: ActorRef[Command] = null;
-//        ActorSystem[Nothing](Behaviors.setup[Nothing] { context =>
-//          // Create an actor that handles cluster domain events
-//          dataActorRef = context.spawn(DataActorListener(), "DataListener")
-//          Behaviors.empty
-//        }, "ClusterSystem", config)
+
+        var dataActorRef: ActorRef[Command] = null;
+        ActorSystem[Nothing](Behaviors.setup[Nothing] { context =>
+          // Create an actor that handles cluster domain events
+          dataActorRef = context.spawn(DataActorListener(), "DataListener")
+          Behaviors.empty
+        }, "ClusterSystem", config)
 
         /* =============== game initialization =============== */
         val n = 2
@@ -39,7 +40,7 @@ object Application {
 
         val imagePath = "src/main/resources/bletchley-park-mansion.jpg"
 
-        val puzzle = new PuzzleBoard(n, m, imagePath, null) //dataActorRef
+        val puzzle = new PuzzleBoard(n, m, imagePath, dataActorRef)
         puzzle.setVisible(true)
 
         return
