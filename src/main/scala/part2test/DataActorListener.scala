@@ -34,11 +34,12 @@ object DataActorListener {
               Behaviors.same
 
             case Increment(map) =>
+              puzzleBoard.get.disableBoard()
               replicatorAdapter.askUpdate(
                 askReplyTo => Replicator.Update(key, ORMultiMap.empty[String, List[Int]], Replicator.WriteLocal, askReplyTo)
                 (x => x.put(node, "map", Set(map))),
                 InternalUpdateResponse.apply)
-              println("Increment request: ", map)
+//              println("Increment request: ", map)
               Behaviors.same
 
             case internal: InternalCommand =>

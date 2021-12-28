@@ -1,7 +1,7 @@
 package part2test
 
 import akka.actor.typed.ActorRef
-import part2test.DataActorListener.{Command, Increment, ViewReady}
+import part2test.DataActorListener.{Command, Increment, ViewReady, puzzleBoard}
 
 import java.awt.event.ActionEvent
 import java.awt.image.{BufferedImage, CropImageFilter, FilteredImageSource}
@@ -21,13 +21,14 @@ class PuzzleBoard(val rows: Int, val columns: Int, val imagePath: String, val ac
   var tiles:List[Tile] = List()
   var selectedTile: Option[Tile] = None
   val selectionManager = new SelectionManager
+  var isExecutingAction = false
 
   board.setBorder(BorderFactory.createLineBorder(Color.gray))
   board.setLayout(new GridLayout(rows, columns, 0, 0))
   getContentPane.add(board, BorderLayout.CENTER)
   createTiles(imagePath)
   paintPuzzle(board)
-  actorRef ! ViewReady(this)
+//  actorRef ! ViewReady(this)
 
   private def createTiles(imagePath: String): Unit = {
     var image: BufferedImage = null
@@ -58,15 +59,34 @@ class PuzzleBoard(val rows: Int, val columns: Int, val imagePath: String, val ac
     }
   }
 
-  def updateBoard(value: List[Int]): Unit = {
-    var i:Int = 0
-    for (tile <- tiles) {
-      tile.currentPosition = value(i)
-      i = i + 1
+  def updateBoard(newPositions: List[Int]): Unit = {
+
+    /*
+    * 0123
+    * 1023
+    * */
+    println(newPositions)
+    for ( i <- 0 to 3) {
+      tiles.find(t => t.originalPosition == newPositions(i)).get.currentPosition = i
     }
+
+    tiles = tiles.sortWith((t1:Tile, t2:Tile) => t1.compareTo(t2) < 0)
+    println(tiles.map(t => (t.originalPosition, t.currentPosition)))
+    println()
+//    var i:Int = 0
+//    for (tile <- tiles) {
+//
+//      tile.currentPosition = newPositions(i)
+//      i = i + 1
+//    }
 
     paintPuzzle(board)
     checkSolution()
+    isExecutingAction = false
+  }
+
+  def disableBoard(): Unit = {
+    isExecutingAction = true
   }
 
   private def paintPuzzle(board: JPanel): Unit = {
@@ -78,18 +98,31 @@ class PuzzleBoard(val rows: Int, val columns: Int, val imagePath: String, val ac
       board.add(btn)
       btn.setBorder(BorderFactory.createLineBorder(Color.gray))
       btn.addActionListener((_: ActionEvent) => {
-        if (selectedTile.isDefined) {
-          val newBoard = tiles.map(t => t.currentPosition)
-            .updated(selectedTile.get.currentPosition, tile.currentPosition)
-            .updated(tile.currentPosition, selectedTile.get.currentPosition)
-          actorRef ! Increment(newBoard)
-          selectedTile = None
-        } else
-          selectedTile = Option(tile)
+        if (!isExecutingAction) {
+          if (selectedTile.isDefined) {
+            println(tiles.map(t => (t.originalPosition, t.currentPosition)))
+            var newBoard = tiles.map(t => t.originalPosition)
+
+            println(newBoard)
+
+            newBoard = newBoard
+              .updated(selectedTile.get.originalPosition, tile.originalPosition)
+              .updated(tile.originalPosition, selectedTile.get.originalPosition)
+
+
+
+
+
+//            actorRef ! Increment(tiles.map(t => t.originalPosition))
+            selectedTile = None
+            isExecutingAction = true
+            updateBoard(newBoard)
+          } else
+            selectedTile = Option(tile)
+        }
       })
     })
     pack()
-    setLocationRelativeTo(null)
   }
 
   private def checkSolution(): Unit = {
