@@ -1,11 +1,11 @@
-package part2test
+package part2
 
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import akka.cluster.ddata.typed.scaladsl.{DistributedData, Replicator}
 import akka.cluster.ddata.{LWWMap, LWWMapKey, SelfUniqueAddress}
 
-object DataActorListener {
+object DistributedDataActor {
 
   /*
   * E' usato un LWWMap per garantire la consistenza della partita in caso di mosse differenti eseguite da molteplici
@@ -21,7 +21,7 @@ object DataActorListener {
 
   sealed trait Command
   case class ViewReady(puzzleBoard: PuzzleBoard) extends Command
-  case class Increment(currentMap: List[Int]) extends Command
+  case class Update(currentMap: List[Int]) extends Command
   final case class GetValue() extends Command
   private sealed trait InternalCommand extends Command
   private case class InternalUpdateResponse(rsp: Replicator.UpdateResponse[LWWMap[String, List[Int]]]) extends InternalCommand
@@ -49,12 +49,12 @@ object DataActorListener {
               this.puzzleBoard = Option(board)
               Behaviors.same
 
-            case Increment(map) =>
+            case Update(map) =>
               replicatorAdapter.askUpdate(
                 askReplyTo => Replicator.Update(key, LWWMap.empty[String, List[Int]], Replicator.WriteLocal, askReplyTo)
                 (x => x.put(node, "map", map)),
                 InternalUpdateResponse.apply)
-              println("Increment request: ", map)
+              println("Update request: ", map)
               Behaviors.same
 
             case GetValue() =>
@@ -101,7 +101,7 @@ object DataActorListener {
                     distribuita
                     */
                   val value = chg.get(key).get("map").get
-                  println("Increment response: ", value)
+                  println("Update response: ", value)
                   puzzleBoard.get.updateBoard(value)
                   updated()
               }

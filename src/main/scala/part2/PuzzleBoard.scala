@@ -1,15 +1,16 @@
 package part2
 
 import akka.actor.typed.ActorRef
-import part2.DataActorListener.{Command, GetValue, Increment}
+import part2.DistributedDataActor.{Command, GetValue, Update, ViewReady}
 
 import java.awt.event.ActionEvent
 import java.awt.image.{BufferedImage, CropImageFilter, FilteredImageSource}
 import java.awt.{BorderLayout, Color, GridLayout}
 import java.io.{File, IOException}
+import java.lang.Thread.sleep
 import java.util.stream.IntStream
 import javax.imageio.ImageIO
-import javax.swing.{BorderFactory, JFrame, JOptionPane, JPanel, WindowConstants}
+import javax.swing._
 import scala.util.Random
 
 class PuzzleBoard(val rows: Int, val columns: Int, val imagePath: String, val actorRef: ActorRef[Command]) extends JFrame {
@@ -19,13 +20,15 @@ class PuzzleBoard(val rows: Int, val columns: Int, val imagePath: String, val ac
 
   val board = new JPanel
   var tiles:List[Tile] = List()
-  val selectionManager = new SelectionManager
+  var selectedTile: Option[Tile] = None
+  var isExecutingAction = false
 
   board.setBorder(BorderFactory.createLineBorder(Color.gray))
   board.setLayout(new GridLayout(rows, columns, 0, 0))
   getContentPane.add(board, BorderLayout.CENTER)
-  createTiles(imagePath)
-  paintPuzzle(board)
+  actorRef ! ViewReady(this)
+  sleep(10000)
+  actorRef ! GetValue()
 
   private def createTiles(imagePath: String): Unit = {
     var image: BufferedImage = null
@@ -39,6 +42,7 @@ class PuzzleBoard(val rows: Int, val columns: Int, val imagePath: String, val ac
     val imageWidth = image.getWidth(null)
     val imageHeight = image.getHeight(null)
     var position = 0
+
     var randomPositions:List[Integer] = List()
     IntStream.range(0, rows * columns).forEach((item: Int) => {
       randomPositions = randomPositions :+ item
@@ -55,6 +59,35 @@ class PuzzleBoard(val rows: Int, val columns: Int, val imagePath: String, val ac
     }
   }
 
+  def updateBoard(newPositions: List[Int]): Unit = {
+    if (tiles.isEmpty) {
+      println("Loading a game...")
+      createTiles(imagePath)
+    }
+
+    for ( i <- 0 to 3) {
+      tiles.find(t => t.originalPosition == newPositions(i)).get.currentPosition = i
+    }
+
+    tiles = tiles.sortWith((t1:Tile, t2:Tile) => t1.compareTo(t2) < 0)
+
+    paintPuzzle(board)
+    checkSolution()
+    isExecutingAction = false
+  }
+
+  def disableBoard(): Unit = {
+    isExecutingAction = true
+  }
+
+  def startNewGame(): Unit = {
+    createTiles(imagePath)
+
+    tiles = tiles.sortWith((t1:Tile, t2:Tile) => t1.compareTo(t2) < 0)
+    val newBoard = tiles.map(t => t.originalPosition)
+    actorRef ! Update(newBoard)
+  }
+
   private def paintPuzzle(board: JPanel): Unit = {
     board.removeAll()
     tiles = tiles.sortWith((t1:Tile, t2:Tile) => t1.compareTo(t2) < 0)
@@ -64,15 +97,21 @@ class PuzzleBoard(val rows: Int, val columns: Int, val imagePath: String, val ac
       board.add(btn)
       btn.setBorder(BorderFactory.createLineBorder(Color.gray))
       btn.addActionListener((_: ActionEvent) => {
-        selectionManager.selectTile(tile, () => {
-          actorRef ! Increment
-          paintPuzzle(board)
-          checkSolution()
-        })
+        if (!isExecutingAction) {
+          if (selectedTile.isDefined) {
+            disableBoard()
+            val newBoard = tiles.map(t => t.originalPosition)
+              .updated(selectedTile.get.currentPosition, tile.originalPosition)
+              .updated(tile.currentPosition, selectedTile.get.originalPosition)
+            actorRef ! Update(newBoard)
+            selectedTile = None
+            isExecutingAction = true
+          } else
+            selectedTile = Option(tile)
+        }
       })
     })
     pack()
-    setLocationRelativeTo(null)
   }
 
   private def checkSolution(): Unit = {
