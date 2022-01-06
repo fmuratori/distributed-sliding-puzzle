@@ -13,7 +13,7 @@ public class ProductInfoServer {
 
         try {
             // create a RMI registry on localhost at port 1099
-            Registry registry = LocateRegistry.createRegistry(2000);
+            Registry registry = LocateRegistry.createRegistry(1099);
 
             System.out.println("RMI registry is running on port 1099");
 
@@ -30,7 +30,7 @@ public class ProductInfoServer {
             System.out.println("Wait for 10 seconds for any incoming client call before terminating the RMI registry...");
 
             // sleep 10 seconds
-            Thread.sleep(10000);
+            Thread.sleep(100000);
 
             // unbind the service object
             registry.unbind(ProductInfoService.SERVICE_NAME);

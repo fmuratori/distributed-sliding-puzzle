@@ -1,5 +1,7 @@
 package part2.rmi;
 
+import part2.rmi.remote.Server;
+
 /**
  * 
  * Simple Puzzle Game - Centralized version.
@@ -12,6 +14,15 @@ package part2.rmi;
 public class Application {
 
 	public static void main(final String[] args) {
+
+		System.out.println("Initializing Java RMI components...");
+		Server.initialize();
+
+//		Client.initialize();
+
+
+		System.out.println("Initializing the puzzle game...");
+
 		final int n = 1;
 		final int m = 2;
 		

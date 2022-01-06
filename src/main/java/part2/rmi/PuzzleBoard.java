@@ -17,9 +17,9 @@ import java.util.stream.IntStream;
 public class PuzzleBoard extends JFrame {
 	
 	final int rows, columns;
-	private List<Tile> tiles = new ArrayList<>();
+	private final List<Tile> tiles = new ArrayList<>();
 	
-	private SelectionManager selectionManager = new SelectionManager();
+	private final SelectionManager selectionManager = new SelectionManager();
 	
     public PuzzleBoard(final int rows, final int columns, final String imagePath) {
     	this.rows = rows;
@@ -55,7 +55,7 @@ public class PuzzleBoard extends JFrame {
         int position = 0;
         
         final List<Integer> randomPositions = new ArrayList<>();
-        IntStream.range(0, rows*columns).forEach(item -> { randomPositions.add(item); }); 
+        IntStream.range(0, rows*columns).forEach(randomPositions::add);
         Collections.shuffle(randomPositions);
         
         for (int i = 0; i < rows; i++) {
