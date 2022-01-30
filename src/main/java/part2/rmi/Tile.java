@@ -20,9 +20,13 @@ public class Tile implements Comparable<Tile>{
     public boolean isInRightPlace() {
     	return currentPosition == originalPosition;
     }
-    
+
     public int getCurrentPosition() {
-    	return currentPosition;
+        return currentPosition;
+    }
+
+    public int getOriginalPosition() {
+        return originalPosition;
     }
     
     public void setCurrentPosition(final int newPosition) {

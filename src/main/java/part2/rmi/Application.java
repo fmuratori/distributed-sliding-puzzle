@@ -1,6 +1,11 @@
 package part2.rmi;
 
+import part2.rmi.remote.ClientsManager;
 import part2.rmi.remote.Server;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 
@@ -14,15 +19,37 @@ import part2.rmi.remote.Server;
 public class Application {
 
 	public static void main(final String[] args) {
+		System.out.println("Initializing distributed data structures ...");
+		List<Integer> sockets = new ArrayList<>(Arrays.asList(12345, 12346, 12347));
+
+		for (Integer port : sockets) {
+			try {
+				Server.initialize(port);
+
+				if (port != 12345) {
+					ClientsManager.get().connect(12345);
+				}
+//				ClientsManager.get().disconnect();
+//				Server.getInstance().terminate();
+//				ClientsManager.get().terminate();
+				break;
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("Port " + port + " already in use.");
+			}
+		}
+
 
 		System.out.println("Initializing the puzzle game...");
 
-		final int n = 1;
-		final int m = 2;
-		
+		final int n = 3;
+		final int m = 3;
+
 		final String imagePath = "src/main/resources/bletchley-park-mansion.jpg";
-		
+
 		final PuzzleBoard puzzle = new PuzzleBoard(n, m, imagePath);
-        puzzle.setVisible(true);
+		puzzle.setVisible(true);
+
+
 	}
 }

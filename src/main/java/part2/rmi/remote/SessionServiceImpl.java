@@ -17,6 +17,8 @@ public class SessionServiceImpl extends UnicastRemoteObject implements SessionSe
         peers = new ArrayList<>();
     }
 
+    // ################################# CLIENTS CONNECTION #################################
+
     @Override
     public void connect(Integer port) throws RemoteException {
         System.out.println("Received connection request from peer at port " + port + "...");
@@ -42,5 +44,26 @@ public class SessionServiceImpl extends UnicastRemoteObject implements SessionSe
     public List<Integer> getPeers() throws RemoteException {
         System.out.println("Requested currently connected peers. PEERS: " + peers.toString());
         return peers;
+    }
+
+    // ################################# GAME STATE AND CS #################################
+
+    @Override
+    public void receiveRequestAction(int port, Long timestamp) throws RemoteException {
+        if (timestamp < GameManager.get().getMyTimestamp()) {
+            ClientsManager.get().getConnection(port).receiveActionOK();
+        } else {
+            GameManager.get().addPendingRequest(port, timestamp);
+        }
+    }
+
+    @Override
+    public void receiveActionOK() throws RemoteException {
+        GameManager.get().increaseOKCount();
+    }
+
+    @Override
+    public void receiveAction(List<Integer> newMap) throws RemoteException {
+        GameManager.get().newPuzzleBoard(newMap);
     }
 }

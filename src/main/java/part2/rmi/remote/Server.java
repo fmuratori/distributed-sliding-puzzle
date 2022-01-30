@@ -15,7 +15,7 @@ public class Server {
 
     private final int port;
     private final Registry registry;
-    private final SessionServiceImpl service;
+    private final SessionServiceImpl sessionService;
 
     private Server(int port) throws RemoteException {
 
@@ -26,8 +26,8 @@ public class Server {
         System.out.println("RMI registry is running on port " + port);
 
         System.out.println("Binding SessionService...");
-        service = new SessionServiceImpl();
-        registry.rebind(SessionService.SERVICE_NAME, service);
+        sessionService = new SessionServiceImpl();
+        registry.rebind(SessionService.SERVICE_NAME, sessionService);
 
         System.out.println("SessionService is ready.");
     }
@@ -37,14 +37,14 @@ public class Server {
         System.out.println("Shutting down the RMI registry...");
 
         registry.unbind(SessionService.SERVICE_NAME);
-        UnicastRemoteObject.unexportObject(service, true);
+        UnicastRemoteObject.unexportObject(sessionService, true);
         UnicastRemoteObject.unexportObject(registry, true);
 
         System.out.println("Server has stopped.");
     }
 
     public SessionService getSession() {
-        return service;
+        return sessionService;
     }
 
     public Integer getPort() {

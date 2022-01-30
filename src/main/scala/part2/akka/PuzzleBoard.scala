@@ -65,7 +65,7 @@ class PuzzleBoard(val rows: Int, val columns: Int, val imagePath: String, val ac
       createTiles(imagePath)
     }
 
-    for ( i <- 0 to 3) {
+    for ( i <- newPositions.indices) {
       tiles.find(t => t.originalPosition == newPositions(i)).get.currentPosition = i
     }
 

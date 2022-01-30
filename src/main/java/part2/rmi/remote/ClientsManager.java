@@ -64,27 +64,23 @@ public class ClientsManager {
 
     public boolean receiveNewConnection(int port) {
         Optional<SessionService> sessionService = this.accessRemoteRegistry(port);
-        executor.execute(() -> {
-            sessionService.ifPresent(service -> peersSessionServices.put(port, service));
-        });
+        executor.execute(() -> sessionService.ifPresent(service -> peersSessionServices.put(port, service)));
         return sessionService.isPresent();
     }
 
     public void disconnect() {
         System.out.println("Closing session by disconnecting to every peer...");
 
-        peersSessionServices.forEach((port, sessionService) -> {
-            executor.execute(() -> {
-                try {
-                    System.out.println("Disconnecting from peer at port " + port + "...");
-                    sessionService.disconnect(Server.getInstance().getPort());
-                    peersSessionServices.remove(port);
-                    System.out.println("Disconnected from peer at port " + port);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
-            });
-        });
+        peersSessionServices.forEach((port, sessionService) -> executor.execute(() -> {
+            try {
+                System.out.println("Disconnecting from peer at port " + port + "...");
+                sessionService.disconnect(Server.getInstance().getPort());
+                peersSessionServices.remove(port);
+                System.out.println("Disconnected from peer at port " + port);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }));
         
         System.out.println("Session closed");
     }
@@ -107,6 +103,14 @@ public class ClientsManager {
             e.printStackTrace();
             return Optional.empty();
         }
+    }
+
+    public Map<Integer, SessionService> getConnections() {
+        return peersSessionServices;
+    }
+
+    public SessionService getConnection(int port) {
+        return peersSessionServices.get(port);
     }
 
     public static ClientsManager get() {

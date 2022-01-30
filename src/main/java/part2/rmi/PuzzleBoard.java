@@ -1,5 +1,7 @@
 package part2.rmi;
 
+import part2.rmi.remote.GameManager;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +13,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @SuppressWarnings("serial")
@@ -18,7 +22,8 @@ public class PuzzleBoard extends JFrame {
 	
 	final int rows, columns;
 	private final List<Tile> tiles = new ArrayList<>();
-	
+	private final JPanel board;
+
 	private final SelectionManager selectionManager = new SelectionManager();
 	
     public PuzzleBoard(final int rows, final int columns, final String imagePath) {
@@ -29,13 +34,15 @@ public class PuzzleBoard extends JFrame {
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        final JPanel board = new JPanel();
+        board = new JPanel();
         board.setBorder(BorderFactory.createLineBorder(Color.gray));
         board.setLayout(new GridLayout(rows, columns, 0, 0));
         getContentPane().add(board, BorderLayout.CENTER);
         
         createTiles(imagePath);
-        paintPuzzle(board);
+        paintPuzzle();
+
+        GameManager.get().setPuzzleBoard(this);
     }
 
     
@@ -72,7 +79,7 @@ public class PuzzleBoard extends JFrame {
         }
 	}
     
-    private void paintPuzzle(final JPanel board) {
+    private void paintPuzzle() {
     	board.removeAll();
     	
     	Collections.sort(tiles);
@@ -81,16 +88,37 @@ public class PuzzleBoard extends JFrame {
     		final TileButton btn = new TileButton(tile);
             board.add(btn);
             btn.setBorder(BorderFactory.createLineBorder(Color.gray));
-            btn.addActionListener(actionListener -> {
-            	selectionManager.selectTile(tile, () -> {
-            		paintPuzzle(board);
-                	checkSolution();
-            	});
-            });
+            btn.addActionListener(actionListener -> selectionManager.selectTile(tile,
+                    () -> GameManager.get().requestAction()));
     	});
     	
     	pack();
         setLocationRelativeTo(null);
+    }
+
+    public void updateBoard(List<Integer> newMap) {
+        System.out.println(newMap);
+
+        // reorder tiles
+        int i = 0;
+        for (int elem: newMap) {
+            Optional<Tile> tile = tiles.stream().filter(t -> t.getOriginalPosition() == elem).findFirst();
+            if (tile.isPresent())
+                tile.get().setCurrentPosition(i++);
+        }
+
+        Collections.sort(tiles);
+        paintPuzzle();
+    }
+
+    public void executeAction() {
+        selectionManager.swap();
+        paintPuzzle();
+        checkSolution();
+    }
+
+    public List<Integer> getMap() {
+        return tiles.stream().map(Tile::getOriginalPosition).collect(Collectors.toList());
     }
 
     private void checkSolution() {
