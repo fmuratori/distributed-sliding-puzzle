@@ -50,20 +50,25 @@ public class SessionServiceImpl extends UnicastRemoteObject implements SessionSe
 
     @Override
     public void receiveRequestAction(int port, Long timestamp) throws RemoteException {
+        System.out.println("Requested CS for an action.");
         if (timestamp < GameManager.get().getMyTimestamp()) {
+            System.out.println("Allowing action.");
             ClientsManager.get().getConnection(port).receiveActionOK();
         } else {
+            System.out.println("Not allowing action. Adding request to pending list.");
             GameManager.get().addPendingRequest(port, timestamp);
         }
     }
 
     @Override
     public void receiveActionOK() throws RemoteException {
+        System.out.println("Received action OK from a peer.");
         GameManager.get().increaseOKCount();
     }
 
     @Override
     public void receiveAction(List<Integer> newMap) throws RemoteException {
+        System.out.println("Received new game configuration from a peer.");
         GameManager.get().newPuzzleBoard(newMap);
     }
 }

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class GameManager {
-    private static GameManager gameManager = new GameManager();
+    private static final GameManager gameManager = new GameManager();
 
     private Map<Integer, Long> pendingRequests = new HashMap<>();
     private Long myTimestamp = -1L;
@@ -31,6 +31,7 @@ public class GameManager {
     }
 
     public void requestAction() {
+        System.out.println("Requesting CS...");
         pendingRequests = new HashMap<>();
         numOK = 0;
         myTimestamp = System.currentTimeMillis();
@@ -55,10 +56,13 @@ public class GameManager {
     public void increaseOKCount() {
         numOK++;
         if (numOK == ClientsManager.get().getConnections().size()) {
+            System.out.println("Entering CS...");
+
             // execute action in CS
             board.executeAction();
 
             // release CS
+            System.out.println("Exiting CS...");
             myTimestamp = -1L;
             pendingRequests.forEach((port, timestamp) -> {
                 try {
@@ -70,7 +74,6 @@ public class GameManager {
                 }
             });
             pendingRequests = new HashMap<>();
-
         }
     }
 }

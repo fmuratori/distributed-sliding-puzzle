@@ -5,7 +5,6 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-@SuppressWarnings("serial")
 public class TileButton extends JButton{
 
 	public TileButton(final Tile tile) {
