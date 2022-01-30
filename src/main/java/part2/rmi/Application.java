@@ -15,12 +15,6 @@ public class Application {
 
 	public static void main(final String[] args) {
 
-		System.out.println("Initializing Java RMI components...");
-		Server.initialize();
-
-//		Client.initialize();
-
-
 		System.out.println("Initializing the puzzle game...");
 
 		final int n = 1;
