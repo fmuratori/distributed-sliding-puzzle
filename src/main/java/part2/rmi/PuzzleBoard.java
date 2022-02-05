@@ -92,7 +92,6 @@ public class PuzzleBoard extends JFrame {
     	});
     	
     	pack();
-        setLocationRelativeTo(null);
     }
 
     public void updateBoard(List<Integer> newMap) {

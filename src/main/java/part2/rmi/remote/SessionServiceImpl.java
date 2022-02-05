@@ -51,7 +51,7 @@ public class SessionServiceImpl extends UnicastRemoteObject implements SessionSe
     @Override
     public void receiveRequestAction(int port, Long timestamp) throws RemoteException {
         System.out.println("Requested CS for an action.");
-        if (timestamp < GameManager.get().getMyTimestamp()) {
+        if (GameManager.get().getMyTimestamp() == -1 || timestamp < GameManager.get().getMyTimestamp()) {
             System.out.println("Allowing action.");
             ClientsManager.get().getConnection(port).receiveActionOK();
         } else {
