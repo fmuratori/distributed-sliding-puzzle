@@ -45,9 +45,16 @@ public class TaskActor extends AbstractBehavior<Message> {
     private Behavior<Message> onStartTaskMessage(StartTaskReqMessage message) {
         //carico lista di parole bandite e path di file da analizzare attraverso il fileReader
         this.filePathList = Optional.of(FileReader.getFilesInFolder(message.getFolder(), "pdf"));
-        this.stopWords = Optional.of(FileReader.getWordsFromPdf(message.getBannedWordsFile()));
         this.wordNumber = message.getWordNumber();
         this.uiActor = message.getCaller();
+
+        this.stopWords = Optional.of(FileReader.getWordsFromPdf(message.getBannedWordsFile()));
+        //per rendere le stop word case-insensitive le porto tutte in lowercase
+        int index = 0;
+        for(String word : this.stopWords.get()){
+            this.stopWords.get().set(index, word.toLowerCase());
+            index++;
+        }
 
         filePathList.get().forEach(filePath -> {
             ActorRef<Message> worker = getContext().spawnAnonymous(FileWordsCounterActor.create());
@@ -71,7 +78,7 @@ public class TaskActor extends AbstractBehavior<Message> {
      */
     private void addWords(LinkedHashMap<String,Integer> wordMap, List<String> wordList){
         wordList.forEach(word -> {
-            //la stop-word la discrimina LA, La, lA e la, ma La discrimina solo La e LA
+            //verifica sulle stopwords case insensitive
             if (!stopWords.get().contains(word.toLowerCase())){
                 totalWordsCount += 1;
                 if(wordMap.containsKey(word))

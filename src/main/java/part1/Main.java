@@ -1,10 +1,8 @@
 package part1;
 
-import akka.actor.Actor;
 import akka.actor.typed.ActorSystem;
 import part1.actor.*;
 import part1.message.Message;
-import part1.message.StartTaskReqMessage;
 import part1.ui.GraphicUI;
 
 public class Main {
