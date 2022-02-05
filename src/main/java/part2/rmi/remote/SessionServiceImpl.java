@@ -71,4 +71,10 @@ public class SessionServiceImpl extends UnicastRemoteObject implements SessionSe
         System.out.println("Received new game configuration from a peer.");
         GameManager.get().newPuzzleBoard(newMap);
     }
+
+    @Override
+    public void receiveMapRequest(int port) throws RemoteException {
+        System.out.println("Received map request. Sending current map to the caller at port " + port + "...");
+        GameManager.get().sendCurrentMap(port);
+    }
 }

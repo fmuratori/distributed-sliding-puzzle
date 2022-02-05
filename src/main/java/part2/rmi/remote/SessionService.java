@@ -38,4 +38,9 @@ public interface SessionService extends Remote {
         Quando ricevo una mossa da eseguire da un peer
      */
     void receiveAction(List<Integer> newMap) throws RemoteException;
+
+    /*
+        Quando mi connetto ad una partita in corso e richiedo la mappa di gioco attuale ad un peer
+     */
+    void receiveMapRequest(int port) throws RemoteException;
 }

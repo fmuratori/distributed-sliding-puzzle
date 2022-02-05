@@ -17,11 +17,11 @@ public class ClientsManager {
     private static ClientsManager instance = null;
 
     private final Map<Integer, SessionService> peersSessionServices;
-    private final ExecutorService executor;
+//    private final ExecutorService executor;
 
     private ClientsManager() {
         peersSessionServices = new HashMap<>();
-        executor = Executors.newFixedThreadPool(1);
+//        executor = Executors.newFixedThreadPool(1);
     }
 
     public void connect(Integer peerPort) {
@@ -40,38 +40,46 @@ public class ClientsManager {
 
                         // a connection is attempted for each peer reachable by the starting peer
                         peers.forEach(port -> connect(port, false));
+
                     } catch (RemoteException e) {
                         System.out.println("Unable to connect to the peer at port " + peerPort);
                         e.printStackTrace();
                     }
                 }
 
-                executor.execute(() -> {
+//                executor.execute(() -> {
                     try {
                         // "send" a connection request to the peer
                         System.out.println("Sending connection request to peer at port " + peerPort + "...");
                         sessionService.connect(Server.getInstance().getPort());
                         peersSessionServices.put(peerPort, sessionService);
                         System.out.println("Connected to peer at port " + peerPort);
+
+
+                        System.out.println("Requesting the map configuration to the peer at port " + peerPort + "...");
+                        sessionService.receiveMapRequest(Server.getInstance().getPort());
+
                     } catch (RemoteException e) {
                         System.out.println("Unable to connect to the peer at port " + peerPort);
                         e.printStackTrace();
                     }
                 });
-        });
+//        });
 
     }
 
     public boolean receiveNewConnection(int port) {
         Optional<SessionService> sessionService = this.accessRemoteRegistry(port);
-        executor.execute(() -> sessionService.ifPresent(service -> peersSessionServices.put(port, service)));
+//        executor.execute(() ->
+                sessionService.ifPresent(service -> peersSessionServices.put(port, service));
+//        );
         return sessionService.isPresent();
     }
 
     public void disconnect() {
         System.out.println("Closing session by disconnecting to every peer...");
 
-        peersSessionServices.forEach((port, sessionService) -> executor.execute(() -> {
+        peersSessionServices.forEach((port, sessionService) -> {
             try {
                 System.out.println("Disconnecting from peer at port " + port + "...");
                 sessionService.disconnect(Server.getInstance().getPort());
@@ -80,17 +88,16 @@ public class ClientsManager {
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
-        }));
+        });
         
         System.out.println("Session closed");
     }
 
     public void deleteSessionService(Integer port) {
-        executor.execute(() -> peersSessionServices.remove(port));
+        peersSessionServices.remove(port);
     }
 
     public void terminate() {
-        executor.shutdownNow();
     }
 
     private Optional<SessionService> accessRemoteRegistry(Integer port) {

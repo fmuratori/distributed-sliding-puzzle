@@ -35,14 +35,18 @@ public class GameManager {
         pendingRequests = new HashMap<>();
         numOK = 0;
         myTimestamp = System.currentTimeMillis();
-        ClientsManager.get().getConnections().forEach((port, sessionService) -> {
-            try {
-                sessionService.receiveRequestAction(Server.getInstance().getPort(), myTimestamp);
-            } catch (RemoteException e) {
-                ClientsManager.get().deleteSessionService(port);
-                e.printStackTrace();
-            }
-        });
+        if (ClientsManager.get().getConnections().isEmpty()) {
+            this.increaseOKCount();
+        } else {
+            ClientsManager.get().getConnections().forEach((port, sessionService) -> {
+                try {
+                    sessionService.receiveRequestAction(Server.getInstance().getPort(), myTimestamp);
+                } catch (RemoteException e) {
+                    ClientsManager.get().deleteSessionService(port);
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 
     public void addPendingRequest(int port, Long timestamp) {
@@ -55,11 +59,22 @@ public class GameManager {
 
     public void increaseOKCount() {
         numOK++;
-        if (numOK == ClientsManager.get().getConnections().size()) {
+        if (numOK >= ClientsManager.get().getConnections().size()) {
             System.out.println("Entering CS...");
 
             // execute action in CS
             board.executeAction();
+
+            // sending new map configuration to each peer
+            ClientsManager.get().getConnections().forEach((port, session) -> {
+                try {
+                    System.out.println("Sending new map configuration to peers...");
+                    session.receiveAction(board.getMap());
+                } catch (RemoteException e) {
+                    System.out.println("Unable to send map configuration to peers ...");
+                    e.printStackTrace();
+                }
+            });
 
             // release CS
             System.out.println("Exiting CS...");
@@ -74,6 +89,16 @@ public class GameManager {
                 }
             });
             pendingRequests = new HashMap<>();
+        }
+    }
+
+    public void sendCurrentMap(Integer port) {
+        try {
+            System.out.println(ClientsManager.get().getConnections().toString());
+
+            ClientsManager.get().getConnection(port).receiveAction(board.getMap());
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
     }
 }

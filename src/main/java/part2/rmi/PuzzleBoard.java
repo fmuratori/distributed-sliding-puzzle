@@ -95,8 +95,6 @@ public class PuzzleBoard extends JFrame {
     }
 
     public void updateBoard(List<Integer> newMap) {
-        System.out.println(newMap);
-
         // reorder tiles
         int i = 0;
         for (int elem: newMap) {
@@ -107,6 +105,7 @@ public class PuzzleBoard extends JFrame {
 
         Collections.sort(tiles);
         paintPuzzle();
+        checkSolution();
     }
 
     public void executeAction() {
@@ -121,7 +120,20 @@ public class PuzzleBoard extends JFrame {
 
     private void checkSolution() {
     	if(tiles.stream().allMatch(Tile::isInRightPlace)) {
-    		JOptionPane.showMessageDialog(this, "Puzzle Completed!", "", JOptionPane.INFORMATION_MESSAGE);
+    	    System.out.println("Game Over!");
+
+    	    /*
+    	    SessionServiceImpl.receiveActionOK -> GameManager.increaseOKCount -> ...
+    	    Puzzleboard.executeAction -> PuzzleBoard.checkSolustion
+
+    	    Quindi checkSolution sarebbe eseguito sul thread di Java RMI e non all'interno del thread Java Swing.
+
+    	    Con invokeLater la modifica della scheramta è eseguita dal thread Java Swing
+
+    	     */
+            SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(this, "Puzzle Completed!", "",
+                            JOptionPane.INFORMATION_MESSAGE));
     	}
     }
 }
