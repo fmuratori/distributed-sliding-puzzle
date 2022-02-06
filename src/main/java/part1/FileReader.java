@@ -47,7 +47,7 @@ public class FileReader {
     public static List<String> getWordsFromPdf(String path){
 
         //le parole estratte dai pdf vengono messe in this.wordList
-        List<String> wordList = new ArrayList<String>();
+        List<String> wordList = new ArrayList<>();
 
         try {
 
@@ -72,7 +72,7 @@ public class FileReader {
 
             document.close();
 
-        } catch(IOException ex) {}
+        } catch(IOException ignored) {}
 
         return wordList;
 

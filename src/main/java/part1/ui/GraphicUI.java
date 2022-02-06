@@ -1,9 +1,7 @@
 package part1.ui;
 
 import akka.actor.typed.ActorRef;
-import part1.message.Message;
-import part1.message.StartTaskReqMessage;
-import part1.message.UIInitializedMessage;
+import part1.message.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,9 +15,9 @@ public class GraphicUI extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private final ActorRef<Message> uiActor;
 
-	private JButton startButton, stopButton, chooseDirectoryButton,chooseFileButton;
+	public JButton startButton, stopButton, chooseDirectoryButton,chooseFileButton;
 	private JTextField directoryPath, filePath, wordNumber;
-	private JTextArea resultConsole;
+	public JTextArea resultConsole;
 
 	//for test purpose
 	private final String defaultFileChooserText = "assets/stopwords.pdf";
@@ -30,7 +28,15 @@ public class GraphicUI extends JFrame implements ActionListener {
 
 		setView();
 
-		this.uiActor.tell(new UIInitializedMessage(resultConsole));
+		this.uiActor.tell(new UIInitializedMessage(this));
+
+		this.addWindowListener(new java.awt.event.WindowAdapter() {
+			@Override
+			public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+				uiActor.tell(new TerminateSystemMessage());
+				System.exit(0);
+			}
+		});
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -38,26 +44,18 @@ public class GraphicUI extends JFrame implements ActionListener {
 		JFileChooser fileChooser;
 		if(e.getSource() == startButton) {
 
-			String[] args = {
-					directoryPath.getText(),
-					wordNumber.getText(),
-					filePath.getText()
-			};
-
 			resultConsole.setText("Starting...");
 
 			startButton.setEnabled(false);
 			stopButton.setEnabled(true);
-			//TODO implementare meccanismo di start
-//			PdfWordCounter.parsePdfs(args, resultConsole);
 			this.uiActor.tell(new StartTaskReqMessage(directoryPath.getText(), filePath.getText(), Integer.parseInt(wordNumber.getText()), this.uiActor));
 
 		} else if(e.getSource() == stopButton) {
 
 			stopButton.setEnabled(false);
 			startButton.setEnabled(true);
-			//TODO implementare meccanismo di stop
-//			PdfWordCounter.stopTasks();
+			this.uiActor.tell(new StopTaskMessage());
+			this.resultConsole.append("\nStopped!");
 
 		} else if(e.getSource() == chooseDirectoryButton) {
 
@@ -98,7 +96,7 @@ public class GraphicUI extends JFrame implements ActionListener {
 
 		JLabel directoryPathLabel = new JLabel("Folder path:");
 		directoryPathLabel.setSize(100,30);
-		directoryPathLabel.setLocation(10, 10);;
+		directoryPathLabel.setLocation(10, 10);
 		contentPane.add(directoryPathLabel);
 
 //		directoryPath = new JTextField("Choose a directory -->");

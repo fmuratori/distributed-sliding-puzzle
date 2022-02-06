@@ -4,10 +4,10 @@ import akka.actor.typed.ActorRef;
 
 public class StartTaskReqMessage implements Message {
 
-    private String folder;
-    private String bannedWordsFile;
-    private Integer wordNumber;
-    private ActorRef<Message> caller;
+    private final String folder;
+    private final String bannedWordsFile;
+    private final Integer wordNumber;
+    private final ActorRef<Message> caller;
 
     public StartTaskReqMessage(String folder, String bannedWordsFile, Integer wordNumber, ActorRef<Message> caller) {
         this.folder = folder;

@@ -1,15 +1,18 @@
 package part1.message;
 
-import javax.swing.*;
+import part1.ui.GraphicUI;
+
 
 public class UIInitializedMessage implements Message {
-    private JTextArea textArea;
+    private final GraphicUI ui;
 
-    public UIInitializedMessage(JTextArea textArea) {
-        this.textArea = textArea;
+    public UIInitializedMessage(GraphicUI ui) {
+        this.ui = ui;
     }
 
-    public JTextArea getTextArea() {
-        return textArea;
+    public GraphicUI getUI() {
+        return ui;
     }
+
+
 }

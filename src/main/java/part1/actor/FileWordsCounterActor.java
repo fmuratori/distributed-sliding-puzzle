@@ -36,7 +36,7 @@ public class FileWordsCounterActor extends AbstractBehavior<Message> {
     private Behavior<Message> onProcessFileReqMessage(ProcessFileReqMessage message) {
         List<String> wordList = FileReader.getWordsFromPdf(message.getFilePath());
 
-        message.getCaller().tell(new ProcessFileResMessage(message.getFilePath(), wordList));
+        message.getCaller().tell(new ProcessFileResMessage(message.getFilePath(), wordList, getContext().getSelf()));
 
         return this;
     }

@@ -11,14 +11,7 @@ public class Main {
         final ActorSystem<Message> system =
                 ActorSystem.create(UIActor.create(), "task");
 
-        GraphicUI v = new GraphicUI(system);
-
-//        String defaultFileChooserText = "assets/stopwords.pdf";
-//        String defaultFolderChooserText = "assets/pdf";
-//
-//        final ActorSystem<Message> system = ActorSystem.create(TaskActor.create(), "task");
-//        system.tell(new StartTaskReqMessage(defaultFolderChooserText, defaultFileChooserText, 10, system));
-
+        new GraphicUI(system);
     }
 
 }

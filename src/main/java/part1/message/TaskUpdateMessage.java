@@ -5,9 +5,9 @@ import java.util.List;
 public class TaskUpdateMessage implements Message {
 
     //lista di doppie parola-numeroOccorrenze ordinate per numero di occorrenze
-    private List<String[]> wordList;
-    private Integer totalWordsCount;
-    private Integer totalFileNumber;
+    private final List<String[]> wordList;
+    private final Integer totalWordsCount;
+    private final Integer totalFileNumber;
 
     public TaskUpdateMessage(List<String[]> wordList, Integer totalWordsCount, Integer totalFileNumber) {
         this.wordList = wordList;

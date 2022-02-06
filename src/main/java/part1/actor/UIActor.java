@@ -7,14 +7,14 @@ import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 import part1.message.*;
+import part1.ui.GraphicUI;
 
-import javax.swing.*;
 import java.util.Calendar;
 import java.util.List;
 
 public class UIActor extends AbstractBehavior<Message> {
 
-    private JTextArea textArea;
+    private GraphicUI ui;
     private final ActorRef<Message> taskActor;
     private Integer processedFiles = 0;
 
@@ -23,7 +23,7 @@ public class UIActor extends AbstractBehavior<Message> {
 
     public UIActor(ActorContext<Message> context) {
         super(context);
-        taskActor = getContext().spawnAnonymous(TaskActor.create());
+            taskActor = getContext().spawnAnonymous(TaskActor.create());
     }
 
     public static Behavior<Message> create() {
@@ -33,14 +33,16 @@ public class UIActor extends AbstractBehavior<Message> {
     @Override
     public Receive<Message> createReceive() {
         return newReceiveBuilder()
+                .onMessage(TerminateSystemMessage.class, this::onTerminateSystemMessage)
                 .onMessage(UIInitializedMessage.class, this::onUIInitializedMessage)
                 .onMessage(StartTaskReqMessage.class, this::onStartTaskReqMessage)
+                .onMessage(StopTaskMessage.class, this::onStopTaskMessage)
                 .onMessage(TaskUpdateMessage.class, this::onTaskUpdateMessage)
                 .build();
     }
 
     private Behavior<Message> onUIInitializedMessage(UIInitializedMessage message) {
-        this.textArea = message.getTextArea();
+        this.ui = message.getUI();
         return this;
     }
 
@@ -51,23 +53,35 @@ public class UIActor extends AbstractBehavior<Message> {
         return this;
     }
 
+    private Behavior<Message> onStopTaskMessage(StopTaskMessage message) {
+        taskActor.tell(message);
+        return this;
+    }
+
+    private Behavior<Message> onTerminateSystemMessage(TerminateSystemMessage message) {
+        getContext().getSystem().terminate();
+        return this;
+    }
+
     private Behavior<Message> onTaskUpdateMessage(TaskUpdateMessage message) {
 
         processedFiles += 1;
-        if(processedFiles == message.getTotalFileNumber()) {
+        if(processedFiles.equals(message.getTotalFileNumber())) {
             timeEnd = Calendar.getInstance();
             System.out.println("TEMPO DI ESECUZIONE TASK: " + (timeEnd.getTimeInMillis() - timeStart.getTimeInMillis()));
+
+            ui.startButton.setEnabled(true);
+            ui.stopButton.setEnabled(false);
         }
 
-        textArea.setText(message.getTotalWordsCount().toString());
+        ui.resultConsole.setText(message.getTotalWordsCount().toString());
 
         //update textarea of the ui
-        textArea.setText(getResultText(
+        ui.resultConsole.setText(getResultText(
                 message.getWordList(),
                 message.getTotalWordsCount(),
                 message.getTotalFileNumber())
         );
-
         return this;
     }
 
@@ -78,14 +92,14 @@ public class UIActor extends AbstractBehavior<Message> {
      */
     private String getResultText(List<String[]> wordList, Integer totalWordsCount, Integer totalFileNumber){
 
-        String textBlock = "Pdf analizzati: " + processedFiles + "/" + totalFileNumber + "\n" +
-                "Numero di parole totali: " + totalWordsCount + "\n";
+        StringBuilder textBlock = new StringBuilder("Pdf analizzati: " + processedFiles + "/" + totalFileNumber + "\n" +
+                "Numero di parole totali: " + totalWordsCount + "\n");
 
         for(String[] word: wordList){
-            textBlock += "PAROLA: " + word[0] + ", OCCORRENZE: " + word[1] + "\n";
+            textBlock.append("PAROLA: ").append(word[0]).append(", OCCORRENZE: ").append(word[1]).append("\n");
         };
 
-        return textBlock;
+        return textBlock.toString();
     }
 
 }

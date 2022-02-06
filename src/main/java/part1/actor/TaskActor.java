@@ -17,17 +17,26 @@ import java.util.*;
  */
 public class TaskActor extends AbstractBehavior<Message> {
 
+    public static int NUM_WORKERS = Runtime.getRuntime().availableProcessors()+1;
+
     private ActorRef<Message> uiActor;
+    private final List<ActorRef<Message>> workerActors = new ArrayList<>();
+
+    private List<String> stopWords = new ArrayList<>();
+    private List<String> filePathList = new ArrayList<>();
+    private int numFiles = 0;
+
+    private Boolean stopped = false;
 
     private LinkedHashMap<String, Integer> wordCountMap = new LinkedHashMap<>();
     private Integer totalWordsCount = 0;
-
-    private Optional<List<String>> stopWords = Optional.empty();
-    private Optional<List<String>> filePathList = Optional.empty();
     private Integer wordNumber;
 
     public TaskActor(ActorContext<Message> context) {
         super(context);
+        for (int i = 0; i < NUM_WORKERS; i++) {
+            workerActors.add(getContext().spawnAnonymous(FileWordsCounterActor.create()));
+        }
     }
 
     public static Behavior<Message> create() {
@@ -39,36 +48,54 @@ public class TaskActor extends AbstractBehavior<Message> {
         return newReceiveBuilder()
                 .onMessage(StartTaskReqMessage.class, this::onStartTaskMessage)
                 .onMessage(ProcessFileResMessage.class, this::onProcessFileResMessage)
+                .onMessage(StopTaskMessage.class, this::onStopTaskMessage)
                 .build();
     }
 
     private Behavior<Message> onStartTaskMessage(StartTaskReqMessage message) {
         //carico lista di parole bandite e path di file da analizzare attraverso il fileReader
-        this.filePathList = Optional.of(FileReader.getFilesInFolder(message.getFolder(), "pdf"));
+        this.filePathList = FileReader.getFilesInFolder(message.getFolder(), "pdf");
         this.wordNumber = message.getWordNumber();
         this.uiActor = message.getCaller();
+        this.wordCountMap = new LinkedHashMap<>();
+        this.stopped = false;
 
-        this.stopWords = Optional.of(FileReader.getWordsFromPdf(message.getBannedWordsFile()));
+        this.stopWords = FileReader.getWordsFromPdf(message.getBannedWordsFile());
+
+        numFiles = this.filePathList.size();
+
         //per rendere le stop word case-insensitive le porto tutte in lowercase
         int index = 0;
-        for(String word : this.stopWords.get()){
-            this.stopWords.get().set(index, word.toLowerCase());
+        for(String word : this.stopWords){
+            this.stopWords.set(index, word.toLowerCase());
             index++;
         }
 
-        filePathList.get().forEach(filePath -> {
-            ActorRef<Message> worker = getContext().spawnAnonymous(FileWordsCounterActor.create());
-            worker.tell(new ProcessFileReqMessage(filePath, stopWords.get(), getContext().getSelf()));
+        workerActors.forEach(w -> {
+            if (this.filePathList.size() > 0) {
+                String elem = this.filePathList.remove(0);
+                w.tell(new ProcessFileReqMessage(elem, stopWords, getContext().getSelf()));
+            }
         });
+        return this;
+    }
 
+    private Behavior<Message> onStopTaskMessage(StopTaskMessage message) {
+        this.stopped = true;
         return this;
     }
 
     private Behavior<Message> onProcessFileResMessage(ProcessFileResMessage message) {
         addWords(this.wordCountMap, message.getWordList());
         List<String[]> result = getOrderedResult(this.wordCountMap, this.wordNumber);
+        if (!this.stopped) {
+            this.uiActor.tell(new TaskUpdateMessage(result, totalWordsCount, numFiles));
 
-        this.uiActor.tell(new TaskUpdateMessage(result, totalWordsCount, filePathList.get().size()));
+            if (this.filePathList.size() > 0) {
+                String elem = this.filePathList.remove(0);
+                message.getActor().tell(new ProcessFileReqMessage(elem, stopWords, getContext().getSelf()));
+            }
+        }
         return this;
     }
 
@@ -79,7 +106,7 @@ public class TaskActor extends AbstractBehavior<Message> {
     private void addWords(LinkedHashMap<String,Integer> wordMap, List<String> wordList){
         wordList.forEach(word -> {
             //verifica sulle stopwords case insensitive
-            if (!stopWords.get().contains(word.toLowerCase())){
+            if (!stopWords.contains(word.toLowerCase())){
                 totalWordsCount += 1;
                 if(wordMap.containsKey(word))
                     wordMap.replace(word, wordMap.get(word)+1);
@@ -95,10 +122,9 @@ public class TaskActor extends AbstractBehavior<Message> {
      * @return restituisce la lista delle parole più frequenti
      */
     private List<String[]> getOrderedResult(LinkedHashMap<String,Integer> wordMap, Integer wordNumber){
-        LinkedHashMap<String,Integer> supportMap = wordMap;
-        List<String[]> result = new ArrayList();
+        List<String[]> result = new ArrayList<>();
 
-        supportMap.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+        wordMap.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .limit(wordNumber).forEach(entry -> {
                     String[] newRow = {entry.getKey(), entry.getValue().toString()};
                     result.add(newRow);
