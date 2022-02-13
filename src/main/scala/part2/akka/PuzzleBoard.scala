@@ -98,16 +98,21 @@ class PuzzleBoard(val rows: Int, val columns: Int, val imagePath: String, val ac
       btn.setBorder(BorderFactory.createLineBorder(Color.gray))
       btn.addActionListener((_: ActionEvent) => {
         if (!isExecutingAction) {
-          if (selectedTile.isDefined) {
-            disableBoard()
-            val newBoard = tiles.map(t => t.originalPosition)
-              .updated(selectedTile.get.currentPosition, tile.originalPosition)
-              .updated(tile.currentPosition, selectedTile.get.originalPosition)
-            actorRef ! Update(newBoard)
+          if (selectedTile.isDefined && selectedTile.get == tile) {
             selectedTile = None
-            isExecutingAction = true
-          } else
-            selectedTile = Option(tile)
+            isExecutingAction = false
+          } else {
+            if (selectedTile.isDefined) {
+              disableBoard()
+              val newBoard = tiles.map(t => t.originalPosition)
+                .updated(selectedTile.get.currentPosition, tile.originalPosition)
+                .updated(tile.currentPosition, selectedTile.get.originalPosition)
+              actorRef ! Update(newBoard)
+              selectedTile = None
+              isExecutingAction = true
+            } else
+              selectedTile = Option(tile)
+          }
         }
       })
     })

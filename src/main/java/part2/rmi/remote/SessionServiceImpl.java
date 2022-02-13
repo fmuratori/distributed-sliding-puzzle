@@ -5,6 +5,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class SessionServiceImpl extends UnicastRemoteObject implements SessionService  {
 
@@ -48,15 +49,52 @@ public class SessionServiceImpl extends UnicastRemoteObject implements SessionSe
 
     // ################################# GAME STATE AND CS #################################
 
+    /**
+     * Controlla se vale la relazione di happened before tra 2 vector clock:
+     * true se tutti i valori di firstVector sono <= rispetto a secondVector ed almeno un valore in firstVector è <
+     * al corrispondente in secondVector, false altrimenti.
+     */
+    private boolean checkHappenedBefore(Map<Integer, Integer> firstVector, Map<Integer, Integer> secondVector) {
+
+        boolean allLowerOrEqual = true;
+        boolean atLeastOneIsLower = false;
+
+        for (Map.Entry<Integer, Integer> entry : firstVector.entrySet()) {
+            boolean isGreater = entry.getValue() > secondVector.get(entry.getKey());
+            boolean isLower = entry.getValue() < secondVector.get(entry.getKey());
+            if (isGreater) {
+                allLowerOrEqual = false;
+                break;
+            }
+            if (isLower) {
+                atLeastOneIsLower = true;
+            }
+        }
+        return allLowerOrEqual && atLeastOneIsLower;
+    }
+
+    private void updateVectorClock(Map<Integer, Integer> vectorClock) {
+        ClientsManager.get().getVectorClock().forEach((port2, lClock) -> {
+            if (port2.equals(Server.getInstance().getPort())) {
+                ClientsManager.get().getVectorClock().put(port2, lClock+1);
+            } else {
+                ClientsManager.get().getVectorClock().put(port2, Math.max(vectorClock.get(port2), lClock));
+            }
+        });
+    }
+
     @Override
-    public void receiveRequestAction(int port, Long timestamp) throws RemoteException {
-        System.out.println("Requested CS for an action.");
-        if (GameManager.get().getMyTimestamp() == -1 || timestamp < GameManager.get().getMyTimestamp()) {
+    public void receiveRequestAction(int port, Map<Integer, Integer> vectorClock) throws RemoteException {
+        this.updateVectorClock(vectorClock);
+        System.out.println("Requested CS for an action. My VECTOR CLOCK:" +
+                ClientsManager.get().getVectorClock().toString() + "RECEIVED VECTOR CLOCK: " + vectorClock.toString());
+
+        if (this.checkHappenedBefore(vectorClock, ClientsManager.get().getVectorClock())) {
             System.out.println("Allowing action.");
             ClientsManager.get().getConnection(port).receiveActionOK();
         } else {
             System.out.println("Not allowing action. Adding request to pending list.");
-            GameManager.get().addPendingRequest(port, timestamp);
+            GameManager.get().addPendingRequest(port);
         }
     }
 

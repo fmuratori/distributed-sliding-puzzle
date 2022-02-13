@@ -3,6 +3,7 @@ package part2.rmi.remote;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
+import java.util.Map;
 
 public interface SessionService extends Remote {
 
@@ -27,7 +28,7 @@ public interface SessionService extends Remote {
     /*
         Quando un peer richiede di fare una mossa e vuole entrare in CS
      */
-    void receiveRequestAction(int port, Long timestamp) throws RemoteException;
+    void receiveRequestAction(int port, Map<Integer, Integer> vectorClock) throws RemoteException;
 
     /*
         Quando un peer mi da il via libera ad effettuare una mossa

@@ -3,7 +3,6 @@ package part2.rmi;
 import part2.rmi.remote.ClientsManager;
 import part2.rmi.remote.Server;
 
-import java.net.BindException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;

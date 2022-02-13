@@ -5,8 +5,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /*
     Classe dedicata alla raccolta di tutte le funzionalità Java RMI orientate a richieste effettuate verso altri
@@ -17,11 +15,12 @@ public class ClientsManager {
     private static ClientsManager instance = null;
 
     private final Map<Integer, SessionService> peersSessionServices;
-//    private final ExecutorService executor;
+    private final Map<Integer, Integer> vectorClock;
 
     private ClientsManager() {
         peersSessionServices = new HashMap<>();
-//        executor = Executors.newFixedThreadPool(1);
+        vectorClock = new HashMap<>();
+        vectorClock.put(Server.getInstance().getPort(), 0);
     }
 
     public void connect(Integer peerPort) {
@@ -47,33 +46,39 @@ public class ClientsManager {
                     }
                 }
 
-//                executor.execute(() -> {
-                    try {
-                        // "send" a connection request to the peer
-                        System.out.println("Sending connection request to peer at port " + peerPort + "...");
-                        sessionService.connect(Server.getInstance().getPort());
-                        peersSessionServices.put(peerPort, sessionService);
-                        System.out.println("Connected to peer at port " + peerPort);
+                try {
+                    // "send" a connection request to the peer
+                    System.out.println("Sending connection request to peer at port " + peerPort + "...");
+                    sessionService.connect(Server.getInstance().getPort());
+                    peersSessionServices.put(peerPort, sessionService);
+                    vectorClock.put(peerPort, 0);
+                    System.out.println("NEW VCLOCK: " + vectorClock.toString());
+                    System.out.println("Connected to peer at port " + peerPort);
 
 
-                        System.out.println("Requesting the map configuration to the peer at port " + peerPort + "...");
-                        sessionService.receiveMapRequest(Server.getInstance().getPort());
+                    System.out.println("Requesting the map configuration to the peer at port " + peerPort + "...");
+                    sessionService.receiveMapRequest(Server.getInstance().getPort());
 
-                    } catch (RemoteException e) {
-                        System.out.println("Unable to connect to the peer at port " + peerPort);
-                        e.printStackTrace();
-                    }
-                });
-//        });
+                } catch (RemoteException e) {
+                    System.out.println("Unable to connect to the peer at port " + peerPort);
+                    e.printStackTrace();
+                }
+            });
 
     }
 
     public boolean receiveNewConnection(int port) {
         Optional<SessionService> sessionService = this.accessRemoteRegistry(port);
-//        executor.execute(() ->
-                sessionService.ifPresent(service -> peersSessionServices.put(port, service));
-//        );
+        sessionService.ifPresent(service -> {
+            peersSessionServices.put(port, service);
+            vectorClock.put(port, 0);
+            System.out.println("NEW VCLOCK: " + vectorClock.toString());
+        });
         return sessionService.isPresent();
+    }
+
+    public Map<Integer, Integer> getVectorClock() {
+        return vectorClock;
     }
 
     public void disconnect() {
@@ -84,6 +89,8 @@ public class ClientsManager {
                 System.out.println("Disconnecting from peer at port " + port + "...");
                 sessionService.disconnect(Server.getInstance().getPort());
                 peersSessionServices.remove(port);
+                vectorClock.remove(port);
+                System.out.println("NEW VCLOCK: " + vectorClock.toString());
                 System.out.println("Disconnected from peer at port " + port);
             } catch (RemoteException e) {
                 e.printStackTrace();

@@ -3,24 +3,19 @@ package part2.rmi.remote;
 import part2.rmi.PuzzleBoard;
 
 import java.rmi.RemoteException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class GameManager {
     private static final GameManager gameManager = new GameManager();
 
-    private Map<Integer, Long> pendingRequests = new HashMap<>();
-    private Long myTimestamp = -1L;
+    private List<Integer> pendingRequests = new ArrayList<>();
     private Integer numOK = 0;
 
     private PuzzleBoard board;
 
     private GameManager() { }
-
-    public Long getMyTimestamp() {
-        return myTimestamp;
-    }
 
     public void setPuzzleBoard(PuzzleBoard board) {
         this.board = board;
@@ -32,15 +27,18 @@ public class GameManager {
 
     public void requestAction() {
         System.out.println("Requesting CS...");
-        pendingRequests = new HashMap<>();
+        pendingRequests = new ArrayList<>();
         numOK = 0;
-        myTimestamp = System.currentTimeMillis();
+        // increasing my logic clock
+        Map<Integer, Integer> vClock = ClientsManager.get().getVectorClock();
+        vClock.put(Server.getInstance().getPort(), vClock.get(Server.getInstance().getPort()) + 1);
         if (ClientsManager.get().getConnections().isEmpty()) {
             this.increaseOKCount();
         } else {
+            // sending messages
             ClientsManager.get().getConnections().forEach((port, sessionService) -> {
                 try {
-                    sessionService.receiveRequestAction(Server.getInstance().getPort(), myTimestamp);
+                    sessionService.receiveRequestAction(Server.getInstance().getPort(), ClientsManager.get().getVectorClock());
                 } catch (RemoteException e) {
                     ClientsManager.get().deleteSessionService(port);
                     e.printStackTrace();
@@ -49,8 +47,8 @@ public class GameManager {
         }
     }
 
-    public void addPendingRequest(int port, Long timestamp) {
-        pendingRequests.put(port, timestamp);
+    public void addPendingRequest(int port) {
+        pendingRequests.add(port);
     }
 
     public static GameManager get() {
@@ -61,6 +59,13 @@ public class GameManager {
         numOK++;
         if (numOK >= ClientsManager.get().getConnections().size()) {
             System.out.println("Entering CS...");
+
+
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
             // execute action in CS
             board.executeAction();
@@ -78,8 +83,7 @@ public class GameManager {
 
             // release CS
             System.out.println("Exiting CS...");
-            myTimestamp = -1L;
-            pendingRequests.forEach((port, timestamp) -> {
+            pendingRequests.forEach((port) -> {
                 try {
                     ClientsManager.get().getConnection(port).receiveAction(board.getMap());
                     ClientsManager.get().getConnection(port).receiveActionOK();
@@ -88,7 +92,7 @@ public class GameManager {
                     e.printStackTrace();
                 }
             });
-            pendingRequests = new HashMap<>();
+            pendingRequests = new ArrayList<>();
         }
     }
 

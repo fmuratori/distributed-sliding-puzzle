@@ -9,9 +9,14 @@ public class SelectionManager {
 	public void selectTile(final Tile tile, final Runnable runnable) {
 		
 		if(selectionActive) {
-			selectionActive = false;
-			selectedTile2 = tile;
-			runnable.run();
+			if (tile.equals(selectedTile)) {
+				selectedTile = null;
+				selectionActive = false;
+			} else {
+				selectionActive = false;
+				selectedTile2 = tile;
+				runnable.run();
+			}
 		} else {
 			selectionActive = true;
 			selectedTile = tile;
