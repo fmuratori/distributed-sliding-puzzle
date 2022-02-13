@@ -62,11 +62,6 @@ public class FileReader {
 
             PDFTextStripper stripper = new PDFTextStripper();
 
-            // This example uses sorting, but in some cases it is more useful to switch it off,
-            // e.g. in some files with columns where the PDF content stream respects the
-            // column order.
-            stripper.setSortByPosition(true);
-
             String text = stripper.getText(document);
             wordList.addAll(Arrays.asList(text.trim().replaceAll("[^a-zA-Zςΰωθιμ ]", " ").split("\\s+")));
 
