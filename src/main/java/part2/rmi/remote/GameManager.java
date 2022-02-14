@@ -1,9 +1,11 @@
 package part2.rmi.remote;
 
+import jnr.ffi.annotations.In;
 import part2.rmi.PuzzleBoard;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +14,7 @@ public class GameManager {
 
     private List<Integer> pendingRequests = new ArrayList<>();
     private Integer numOK = 0;
+    private Map<Integer, Integer> requestVClock = new HashMap<>();
 
     private PuzzleBoard board;
 
@@ -32,6 +35,7 @@ public class GameManager {
         // increasing my logic clock
         Map<Integer, Integer> vClock = ClientsManager.get().getVectorClock();
         vClock.put(Server.getInstance().getPort(), vClock.get(Server.getInstance().getPort()) + 1);
+        requestVClock = new HashMap<>(vClock);
         if (ClientsManager.get().getConnections().isEmpty()) {
             this.increaseOKCount();
         } else {
@@ -51,6 +55,10 @@ public class GameManager {
         pendingRequests.add(port);
     }
 
+    public Map<Integer, Integer> getTimestamp() {
+        return requestVClock;
+    }
+
     public static GameManager get() {
         return gameManager;
     }
@@ -61,11 +69,11 @@ public class GameManager {
             System.out.println("Entering CS...");
 
 
-            try {
-                Thread.sleep(20000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                Thread.sleep(5000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
 
             // execute action in CS
             board.executeAction();
@@ -80,6 +88,8 @@ public class GameManager {
                     e.printStackTrace();
                 }
             });
+
+            requestVClock = new HashMap<>();
 
             // release CS
             System.out.println("Exiting CS...");

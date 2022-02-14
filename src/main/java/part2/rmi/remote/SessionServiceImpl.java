@@ -86,10 +86,14 @@ public class SessionServiceImpl extends UnicastRemoteObject implements SessionSe
     @Override
     public void receiveRequestAction(int port, Map<Integer, Integer> vectorClock) throws RemoteException {
         this.updateVectorClock(vectorClock);
-        System.out.println("Requested CS for an action. My VECTOR CLOCK:" +
-                ClientsManager.get().getVectorClock().toString() + "RECEIVED VECTOR CLOCK: " + vectorClock.toString());
+        if (GameManager.get().getTimestamp().isEmpty())
+            System.out.println("Requested CS for an action. RECEIVED VECTOR CLOCK: " + vectorClock.toString());
+        else
+            System.out.println("Requested CS for an action. My VECTOR CLOCK:" +
+                    GameManager.get().getTimestamp().toString() + "RECEIVED VECTOR CLOCK: " + vectorClock.toString());
 
-        if (this.checkHappenedBefore(vectorClock, ClientsManager.get().getVectorClock())) {
+        if (GameManager.get().getTimestamp().isEmpty() ||
+                this.checkHappenedBefore(vectorClock, GameManager.get().getTimestamp())) {
             System.out.println("Allowing action.");
             ClientsManager.get().getConnection(port).receiveActionOK();
         } else {
