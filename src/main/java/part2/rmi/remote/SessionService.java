@@ -33,7 +33,7 @@ public interface SessionService extends Remote {
     /*
         Quando un peer mi da il via libera ad effettuare una mossa
      */
-    void receiveActionOK() throws RemoteException;
+    void receiveACK(Integer port) throws RemoteException;
 
     /*
         Quando ricevo una mossa da eseguire da un peer

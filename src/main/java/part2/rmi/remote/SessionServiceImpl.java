@@ -37,7 +37,7 @@ public class SessionServiceImpl extends UnicastRemoteObject implements SessionSe
     public void disconnect(Integer port) throws RemoteException {
         System.out.println("Received disconnection request from peer at port " + port + "...");
         peers.remove(port);
-        ClientsManager.get().deleteSessionService(port);
+        ClientsManager.get().deletePeer(port);
         System.out.println("Peer at port " + port + " disconnected successfully. PEERS: " + peers.toString());
     }
 
@@ -95,7 +95,7 @@ public class SessionServiceImpl extends UnicastRemoteObject implements SessionSe
         if (GameManager.get().getTimestamp().isEmpty() ||
                 this.checkHappenedBefore(vectorClock, GameManager.get().getTimestamp())) {
             System.out.println("Allowing action.");
-            ClientsManager.get().getConnection(port).receiveActionOK();
+            ClientsManager.get().getConnection(port).receiveACK(Server.getInstance().getPort());
         } else {
             System.out.println("Not allowing action. Adding request to pending list.");
             GameManager.get().addPendingRequest(port);
@@ -103,9 +103,9 @@ public class SessionServiceImpl extends UnicastRemoteObject implements SessionSe
     }
 
     @Override
-    public void receiveActionOK() throws RemoteException {
+    public void receiveACK(Integer port) throws RemoteException {
         System.out.println("Received action OK from a peer.");
-        GameManager.get().increaseOKCount();
+        GameManager.get().registerACK(port);
     }
 
     @Override

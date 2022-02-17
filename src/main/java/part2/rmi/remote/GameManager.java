@@ -1,6 +1,5 @@
 package part2.rmi.remote;
 
-import jnr.ffi.annotations.In;
 import part2.rmi.PuzzleBoard;
 
 import java.rmi.RemoteException;
@@ -8,15 +7,42 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class GameManager {
     private static final GameManager gameManager = new GameManager();
 
     private List<Integer> pendingRequests = new ArrayList<>();
-    private Integer numOK = 0;
+    private Map<Integer, Boolean> receivedACK = new HashMap<>();
     private Map<Integer, Integer> requestVClock = new HashMap<>();
 
     private PuzzleBoard board;
+
+    private final Runnable timeExpired = () -> {
+        System.out.println("Started waiting for ACK");
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        List<Integer> expired = receivedACK
+                .entrySet()
+                .stream()
+                .filter(e -> !e.getValue())
+                .map(Map.Entry::getKey).collect(Collectors.toList());
+        if (expired.size() > 0) {
+            System.out.println("ACK wait expired for peers at port" + expired.toString());
+            expired.forEach(port -> {
+                ClientsManager.get().deletePeer(port);
+                receivedACK.remove(port);
+                requestVClock.remove(port);
+                pendingRequests.remove(port);
+            });
+
+            registerACK(-1);
+        }
+    };
 
     private GameManager() { }
 
@@ -30,21 +56,25 @@ public class GameManager {
 
     public void requestAction() {
         System.out.println("Requesting CS...");
-        pendingRequests = new ArrayList<>();
-        numOK = 0;
-        // increasing my logic clock
-        Map<Integer, Integer> vClock = ClientsManager.get().getVectorClock();
-        vClock.put(Server.getInstance().getPort(), vClock.get(Server.getInstance().getPort()) + 1);
-        requestVClock = new HashMap<>(vClock);
-        if (ClientsManager.get().getConnections().isEmpty()) {
-            this.increaseOKCount();
+        if (ClientsManager.get().getConnections().size() == 0) {
+            registerACK(-1);
         } else {
+            pendingRequests = new ArrayList<>();
+            receivedACK = new HashMap<>();
+            ClientsManager.get().getConnections().forEach((port, sessionService) -> receivedACK.put(port, false));
+            new Thread(timeExpired).start();
+
+            // increasing my logic clock
+            Map<Integer, Integer> vClock = ClientsManager.get().getVectorClock();
+            vClock.put(Server.getInstance().getPort(), vClock.get(Server.getInstance().getPort()) + 1);
+            requestVClock = new HashMap<>(vClock);
             // sending messages
             ClientsManager.get().getConnections().forEach((port, sessionService) -> {
+                receivedACK.put(port, false);
                 try {
                     sessionService.receiveRequestAction(Server.getInstance().getPort(), ClientsManager.get().getVectorClock());
                 } catch (RemoteException e) {
-                    ClientsManager.get().deleteSessionService(port);
+                    ClientsManager.get().deletePeer(port);
                     e.printStackTrace();
                 }
             });
@@ -63,11 +93,12 @@ public class GameManager {
         return gameManager;
     }
 
-    public void increaseOKCount() {
-        numOK++;
-        if (numOK >= ClientsManager.get().getConnections().size()) {
+    public void registerACK(int port) {
+        if (port != -1) {
+            receivedACK.put(port, true);
+        }
+        if (receivedACK.values().stream().allMatch(p -> p)) {
             System.out.println("Entering CS...");
-
 
 //            try {
 //                Thread.sleep(5000);
@@ -79,7 +110,7 @@ public class GameManager {
             board.executeAction();
 
             // sending new map configuration to each peer
-            ClientsManager.get().getConnections().forEach((port, session) -> {
+            ClientsManager.get().getConnections().forEach((peerPort, session) -> {
                 try {
                     System.out.println("Sending new map configuration to peers...");
                     session.receiveAction(board.getMap());
@@ -93,12 +124,12 @@ public class GameManager {
 
             // release CS
             System.out.println("Exiting CS...");
-            pendingRequests.forEach((port) -> {
+            pendingRequests.forEach((peerPort) -> {
                 try {
-                    ClientsManager.get().getConnection(port).receiveAction(board.getMap());
-                    ClientsManager.get().getConnection(port).receiveActionOK();
+
+                    ClientsManager.get().getConnection(peerPort).receiveACK(Server.getInstance().getPort());
                 } catch (RemoteException e) {
-                    ClientsManager.get().deleteSessionService(port);
+                    ClientsManager.get().deletePeer(peerPort);
                     e.printStackTrace();
                 }
             });

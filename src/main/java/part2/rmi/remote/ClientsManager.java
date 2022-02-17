@@ -82,7 +82,7 @@ public class ClientsManager {
     }
 
     public void disconnect() {
-        System.out.println("Closing session by disconnecting to every peer...");
+        System.out.println("Closing session by disconnecting from every peer...");
 
         peersSessionServices.forEach((port, sessionService) -> {
             try {
@@ -90,17 +90,18 @@ public class ClientsManager {
                 sessionService.disconnect(Server.getInstance().getPort());
                 peersSessionServices.remove(port);
                 vectorClock.remove(port);
-                System.out.println("NEW VCLOCK: " + vectorClock.toString());
                 System.out.println("Disconnected from peer at port " + port);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
+
         });
         
         System.out.println("Session closed");
     }
 
-    public void deleteSessionService(Integer port) {
+    public void deletePeer(Integer port) {
+        vectorClock.remove(port);
         peersSessionServices.remove(port);
     }
 

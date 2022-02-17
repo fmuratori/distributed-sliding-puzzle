@@ -62,6 +62,8 @@ public class FileReader {
 
             PDFTextStripper stripper = new PDFTextStripper();
 
+//            stripper.setSortByPosition(true);
+
             String text = stripper.getText(document);
             wordList.addAll(Arrays.asList(text.trim().replaceAll("[^a-zA-Zςΰωθιμ ]", " ").split("\\s+")));
 
