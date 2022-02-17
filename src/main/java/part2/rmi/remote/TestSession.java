@@ -20,8 +20,7 @@ public class TestSession {
 
                 Thread.sleep(100000);
 
-                Server.getInstance().terminate();
-                ClientsManager.get().terminate();
+                Server.get().terminate();
 
                 break;
             } catch (Exception e) {

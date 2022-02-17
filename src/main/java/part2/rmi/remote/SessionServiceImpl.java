@@ -75,7 +75,7 @@ public class SessionServiceImpl extends UnicastRemoteObject implements SessionSe
 
     private void updateVectorClock(Map<Integer, Integer> vectorClock) {
         ClientsManager.get().getVectorClock().forEach((port2, lClock) -> {
-            if (port2.equals(Server.getInstance().getPort())) {
+            if (port2.equals(Server.get().getPort())) {
                 ClientsManager.get().getVectorClock().put(port2, lClock+1);
             } else {
                 ClientsManager.get().getVectorClock().put(port2, Math.max(vectorClock.get(port2), lClock));
@@ -95,7 +95,7 @@ public class SessionServiceImpl extends UnicastRemoteObject implements SessionSe
         if (GameManager.get().getTimestamp().isEmpty() ||
                 this.checkHappenedBefore(vectorClock, GameManager.get().getTimestamp())) {
             System.out.println("Allowing action.");
-            ClientsManager.get().getConnection(port).receiveACK(Server.getInstance().getPort());
+            ClientsManager.get().getConnection(port).receiveACK(Server.get().getPort());
         } else {
             System.out.println("Not allowing action. Adding request to pending list.");
             GameManager.get().addPendingRequest(port);

@@ -20,7 +20,7 @@ public class ClientsManager {
     private ClientsManager() {
         peersSessionServices = new HashMap<>();
         vectorClock = new HashMap<>();
-        vectorClock.put(Server.getInstance().getPort(), 0);
+        vectorClock.put(Server.get().getPort(), 0);
     }
 
     public void connect(Integer peerPort) {
@@ -49,15 +49,15 @@ public class ClientsManager {
                 try {
                     // "send" a connection request to the peer
                     System.out.println("Sending connection request to peer at port " + peerPort + "...");
-                    sessionService.connect(Server.getInstance().getPort());
-                    peersSessionServices.put(peerPort, sessionService);
-                    vectorClock.put(peerPort, 0);
-                    System.out.println("NEW VCLOCK: " + vectorClock.toString());
-                    System.out.println("Connected to peer at port " + peerPort);
+                    sessionService.connect(Server.get().getPort());
 
 
                     System.out.println("Requesting the map configuration to the peer at port " + peerPort + "...");
-                    sessionService.receiveMapRequest(Server.getInstance().getPort());
+                    sessionService.receiveMapRequest(Server.get().getPort());
+
+                    peersSessionServices.put(peerPort, sessionService);
+                    vectorClock.put(peerPort, 0);
+                    System.out.println("Connected to peer at port " + peerPort);
 
                 } catch (RemoteException e) {
                     System.out.println("Unable to connect to the peer at port " + peerPort);
@@ -87,10 +87,10 @@ public class ClientsManager {
         peersSessionServices.forEach((port, sessionService) -> {
             try {
                 System.out.println("Disconnecting from peer at port " + port + "...");
-                sessionService.disconnect(Server.getInstance().getPort());
                 peersSessionServices.remove(port);
                 vectorClock.remove(port);
                 System.out.println("Disconnected from peer at port " + port);
+                sessionService.disconnect(Server.get().getPort());
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -103,9 +103,6 @@ public class ClientsManager {
     public void deletePeer(Integer port) {
         vectorClock.remove(port);
         peersSessionServices.remove(port);
-    }
-
-    public void terminate() {
     }
 
     private Optional<SessionService> accessRemoteRegistry(Integer port) {

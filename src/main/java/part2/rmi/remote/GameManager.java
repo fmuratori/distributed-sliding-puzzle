@@ -66,15 +66,18 @@ public class GameManager {
 
             // increasing my logic clock
             Map<Integer, Integer> vClock = ClientsManager.get().getVectorClock();
-            vClock.put(Server.getInstance().getPort(), vClock.get(Server.getInstance().getPort()) + 1);
+            vClock.put(Server.get().getPort(), vClock.get(Server.get().getPort()) + 1);
             requestVClock = new HashMap<>(vClock);
             // sending messages
             ClientsManager.get().getConnections().forEach((port, sessionService) -> {
                 receivedACK.put(port, false);
                 try {
-                    sessionService.receiveRequestAction(Server.getInstance().getPort(), ClientsManager.get().getVectorClock());
+                    sessionService.receiveRequestAction(Server.get().getPort(), ClientsManager.get().getVectorClock());
                 } catch (RemoteException e) {
                     ClientsManager.get().deletePeer(port);
+                    receivedACK.remove(port);
+                    requestVClock.remove(port);
+                    pendingRequests.remove(port);
                     e.printStackTrace();
                 }
             });
@@ -115,7 +118,11 @@ public class GameManager {
                     System.out.println("Sending new map configuration to peers...");
                     session.receiveAction(board.getMap());
                 } catch (RemoteException e) {
-                    System.out.println("Unable to send map configuration to peers ...");
+                    ClientsManager.get().deletePeer(peerPort);
+                    receivedACK.remove(peerPort);
+                    requestVClock.remove(peerPort);
+                    pendingRequests.remove(peerPort);
+                    System.out.println("Unable to send map configuration to peer at port " + peerPort.toString() );
                     e.printStackTrace();
                 }
             });
@@ -126,10 +133,12 @@ public class GameManager {
             System.out.println("Exiting CS...");
             pendingRequests.forEach((peerPort) -> {
                 try {
-
-                    ClientsManager.get().getConnection(peerPort).receiveACK(Server.getInstance().getPort());
+                    ClientsManager.get().getConnection(peerPort).receiveACK(Server.get().getPort());
                 } catch (RemoteException e) {
                     ClientsManager.get().deletePeer(peerPort);
+                    receivedACK.remove(peerPort);
+                    requestVClock.remove(peerPort);
+                    pendingRequests.remove(peerPort);
                     e.printStackTrace();
                 }
             });
@@ -143,6 +152,10 @@ public class GameManager {
 
             ClientsManager.get().getConnection(port).receiveAction(board.getMap());
         } catch (RemoteException e) {
+            ClientsManager.get().deletePeer(port);
+            receivedACK.remove(port);
+            requestVClock.remove(port);
+            pendingRequests.remove(port);
             e.printStackTrace();
         }
     }

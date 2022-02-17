@@ -25,8 +25,8 @@ public class Application {
 
 		System.out.println("Initializing the puzzle game...");
 
-		final int n = 2;
-		final int m = 2;
+		final int n = 5;
+		final int m = 5;
 
 		final String imagePath = "src/main/resources/bletchley-park-mansion.jpg";
 

@@ -18,8 +18,7 @@ public class TestClientConnection {
 
                 ClientsManager.get().disconnect();
 
-                Server.getInstance().terminate();
-                ClientsManager.get().terminate();
+                Server.get().terminate();
 
                 break;
             } catch (Exception e) {

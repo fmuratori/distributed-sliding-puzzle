@@ -51,7 +51,7 @@ public class Server {
         return port;
     }
 
-    public static Server getInstance() {
+    public static Server get() {
         return server;
     }
 
